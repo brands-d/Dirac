@@ -1,17 +1,16 @@
 from setuptools import setup, find_packages
-from dirac import (__version__, __author__,
+from dirac import (__version__, __author__, __email__,
                    __directory__, __github__, __license__)
 
-
-description_path = __directory__ / 'resoucres/misc/description.txt'
+description_path = __directory__ / 'resources/misc/description.txt'
 with open(description_path, 'r') as file:
     description = file.read()
 
-setuptools.setup(
-    packages=setuptools.find_packages(),
+setup(
+    packages=find_packages(),
     include_package_data=True,
     zip_safe=True,
-    install_requires=['numpy>=1.4.0'],
+    install_requires=['numpy>=1.19.0'],
     python_requires='>=3.9.0',
     name='Dirac Equation',
     version=__version__,
