@@ -1,0 +1,1 @@
+A numerical simulation of the (2+1)D Dirac equation on a in space and time staggered grid with periodic or absorbent boundary conditions using perfectly matched layers. 
