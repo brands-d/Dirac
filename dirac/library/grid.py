@@ -63,16 +63,30 @@ class BaseGrid(metaclass=ABCMeta):
         else:
             return idx + 1
 
-    def get_neighbours(self, indices):
+    def get_neighbours(self, idx):
         neighbours = []
-        for idx in indices:
-            temp = [self.get_top_neighbour(idx),
-                    self.get_bottom_neighbour(idx),
-                    self.get_right_neighbour(idx),
-                    self.get_left_neighbour(idx)]
+        for i in idx:
+            temp = [self.get_top_neighbour(i),
+                    self.get_bottom_neighbour(i),
+                    self.get_right_neighbour(i),
+                    self.get_left_neighbour(i)]
             neighbours.append(temp)
 
         return np.array(neighbours).T
+
+    def __getitem__(self, idx):
+        old_shape = idx.shape
+        idx = idx.flatten()
+        nan_mask = np.isnan(idx)
+        not_nan_mask = np.invert(nan_mask)
+
+        data = np.zeros(idx.shape, dtype=np.complex_)
+        stag_idx = BaseGrid.reg_to_stag(idx[not_nan_mask])
+
+        data[nan_mask] = np.nan
+        data[not_nan_mask] = self.data[stag_idx]
+
+        return data.reshape(old_shape)
 
     @abstractmethod
     def stag_to_reg(self, idx):

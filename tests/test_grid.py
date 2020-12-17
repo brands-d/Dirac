@@ -2,6 +2,7 @@ import unittest
 from pathlib import Path
 
 import numpy as np
+from numpy.testing import assert_equal
 
 from dirac.library.grid import UGrid, VGrid
 
@@ -10,11 +11,11 @@ class TestIndexConversion(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        with open(Path(__file__).parent / 'output/6_by_4_u_idx.txt') as file:
-            cls.u_idx = np.array([int(x) for x in next(file).split()])
+        cls.u_idx = np.loadtxt(
+            Path(__file__).parent / 'input/6_by_4_u_idx.txt')
 
-        with open(Path(__file__).parent / 'output/6_by_4_v_idx.txt') as file:
-            cls.v_idx = np.array([int(x) for x in next(file).split()])
+        cls.v_idx = np.loadtxt(
+            Path(__file__).parent / 'input/6_by_4_v_idx.txt')
 
     def setUp(self):
         N, M = 6, 4
@@ -24,22 +25,22 @@ class TestIndexConversion(unittest.TestCase):
     def test_reg_to_stag_u(self):
         stag_idx = self.u.reg_to_stag(TestIndexConversion.u_idx)
 
-        np.testing.assert_equal(stag_idx, range(self.u.num))
+        assert_equal(stag_idx, range(self.u.num))
 
     def test_reg_to_stag_v(self):
         stag_idx = self.u.reg_to_stag(TestIndexConversion.v_idx)
 
-        np.testing.assert_equal(stag_idx, range(self.v.num))
+        assert_equal(stag_idx, range(self.v.num))
 
     def test_stag_to_reg_u(self):
         reg_idx = self.u.stag_to_reg(np.arange(self.u.num))
 
-        np.testing.assert_equal(TestIndexConversion.u_idx, reg_idx)
+        assert_equal(TestIndexConversion.u_idx, reg_idx)
 
     def test_stag_to_reg_v(self):
         reg_idx = self.v.stag_to_reg(np.arange(self.v.num))
 
-        np.testing.assert_equal(TestIndexConversion.v_idx, reg_idx)
+        assert_equal(TestIndexConversion.v_idx, reg_idx)
 
 
 class TestBoundaries(unittest.TestCase):
@@ -77,7 +78,7 @@ class TestNeighbours(unittest.TestCase):
     def test_top(self):
         self.u = UGrid(self.N, self.M, periodic=False)
 
-        np.testing.assert_equal(self.u.get_top_neighbour(3), np.nan)
+        assert_equal(self.u.get_top_neighbour(3), np.nan)
         self.assertEqual(self.u.get_top_neighbour(14), 8)
         self.assertEqual(self.u.get_top_neighbour(23), 17)
 
@@ -93,7 +94,7 @@ class TestNeighbours(unittest.TestCase):
 
         self.assertEqual(self.u.get_bottom_neighbour(3), 9)
         self.assertEqual(self.u.get_bottom_neighbour(14), 20)
-        np.testing.assert_equal(self.u.get_bottom_neighbour(23), np.nan)
+        assert_equal(self.u.get_bottom_neighbour(23), np.nan)
 
     def test_bottom_periodic(self):
         self.u = UGrid(self.N, self.M, periodic=True)
@@ -105,7 +106,7 @@ class TestNeighbours(unittest.TestCase):
     def test_left(self):
         self.u = UGrid(self.N, self.M, periodic=False)
 
-        np.testing.assert_equal(self.u.get_left_neighbour(6), np.nan)
+        assert_equal(self.u.get_left_neighbour(6), np.nan)
         self.assertEqual(self.u.get_left_neighbour(15), 14)
         self.assertEqual(self.u.get_left_neighbour(23), 22)
 
@@ -121,7 +122,7 @@ class TestNeighbours(unittest.TestCase):
 
         self.assertEqual(self.u.get_right_neighbour(6), 7)
         self.assertEqual(self.u.get_right_neighbour(15), 16)
-        np.testing.assert_equal(self.u.get_right_neighbour(23), np.nan)
+        assert_equal(self.u.get_right_neighbour(23), np.nan)
 
     def test_right_periodic(self):
         self.u = UGrid(self.N, self.M, periodic=True)
@@ -135,7 +136,7 @@ class TestNeighbours(unittest.TestCase):
 
         expect = np.loadtxt(Path(__file__).parent /
                             'output/neighbours_3_12_21.txt')
-        np.testing.assert_equal(self.u.get_neighbours([3, 12, 21]), expect)
+        assert_equal(self.u.get_neighbours([3, 12, 21]), expect)
 
 
 if __name__ == '__main__':
