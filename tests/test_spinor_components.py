@@ -15,7 +15,7 @@ class TestGet(unittest.TestCase):
             complex)
 
     def setUp(self):
-        self.u = UComponent(TestGet.data)
+        self.u = UComponent.init_on_full_grid(TestGet.data)
 
     def test_get(self):
         points = np.array([[4, 23], [0, np.nan]])
@@ -25,6 +25,24 @@ class TestGet(unittest.TestCase):
 
     def test_complex_interpolate(self):
         assert_almost_equal(self.u.complex_interpolate([10]), 11.25 + 12.5j)
+
+
+class TestArithmetic(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.data = np.loadtxt(Path(__file__).parent / 'input/data.txt').view(
+            complex)
+
+    def setUp(self):
+        self.u = UComponent.init_on_full_grid(TestArithmetic.data)
+
+    def test_add(self):
+        assert_equal((self.u + self.u).data, 2 * self.u.data)
+
+    def test_mul(self):
+        assert_equal((self.u * 2).data, 2 * self.u.data)
+        assert_equal((2 * self.u).data, 2 * self.u.data)
 
 
 if __name__ == '__main__':

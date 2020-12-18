@@ -33,12 +33,12 @@ class TestIndexConversion(unittest.TestCase):
         assert_equal(stag_idx, range(self.v.num))
 
     def test_stag_to_reg_u(self):
-        reg_idx = self.u.stag_to_reg(np.arange(self.u.num))
+        reg_idx = UGrid.stag_to_reg(np.arange(self.u.num), self.u.N)
 
         assert_equal(TestIndexConversion.u_idx, reg_idx)
 
     def test_stag_to_reg_v(self):
-        reg_idx = self.v.stag_to_reg(np.arange(self.v.num))
+        reg_idx = VGrid.stag_to_reg(np.arange(self.v.num), self.u.N)
 
         assert_equal(TestIndexConversion.v_idx, reg_idx)
 

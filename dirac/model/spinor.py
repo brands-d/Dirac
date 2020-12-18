@@ -7,12 +7,19 @@ from dirac.library.grid import *
 
 class SpinorComponent(BaseGrid, metaclass=ABCMeta):
 
-    def __init__(self, data, periodic=False):
-        M, N = data.shape
+    def __init__(self, data, shape, periodic=False):
+        M, N = shape
+        self.data = data
+
         BaseGrid.__init__(self, N, M, periodic)
 
-        idx = self.stag_to_reg(np.arange(self.num))
-        self.data = data.flatten()[idx]
+    @classmethod
+    def init_on_full_grid(cls, data, periodic=False):
+        shape = data.shape
+        idx = cls.stag_to_reg(np.arange(int(data.size / 2)), shape[1])
+        data = data.flatten()[idx]
+
+        return cls(data, shape, periodic)
 
     def complex_interpolate(self, idx):
         n = self[self.get_neighbours(idx)]
@@ -23,7 +30,7 @@ class SpinorComponent(BaseGrid, metaclass=ABCMeta):
 
     def to_full_grid(self):
         full_data = np.zeros(self.M * self.N, dtype=np.complex_)
-        exist_idx = self.stag_to_reg(np.arange(self.num))
+        exist_idx = self.stag_to_reg(np.arange(self.num), self.N)
         not_exist_idx = np.setdiff1d(np.arange(self.N * self.M), exist_idx)
 
         full_data[exist_idx] = self.data
@@ -31,6 +38,32 @@ class SpinorComponent(BaseGrid, metaclass=ABCMeta):
 
         return full_data.reshape(self.M, self.N)
 
+    def __add__(self, other):
+        if isinstance(other, type(self)):
+            data = self.data + other.data
+        else:
+            data = self.data + other
+
+        new = type(self)(data, (self.M, self.N), self.periodic)
+        return new
+
+    def __mul__(self, other):
+        if isinstance(other, type(self)):
+            data = self.data * other.data
+        else:
+            data = self.data * other
+
+        new = type(self)(data, (self.M, self.N), self.periodic)
+        return new
+
+    def __rmul__(self, other):
+        if isinstance(other, type(self)):
+            data = self.data * other.data
+        else:
+            data = self.data * other
+
+        new = type(self)(data, (self.M, self.N), self.periodic)
+        return new
 
 class UComponent(UGrid, SpinorComponent):
     pass
@@ -38,3 +71,10 @@ class UComponent(UGrid, SpinorComponent):
 
 class VComponent(VGrid, SpinorComponent):
     pass
+
+
+class Spinor:
+
+    def __init__(self, data, periodic=False):
+        self.u = UComponent(data, periodic)
+        self.v = VComponent(data, periodic)

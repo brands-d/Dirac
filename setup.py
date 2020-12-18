@@ -10,7 +10,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=True,
-    install_requires=['numpy>=1.19.0'],
+    install_requires=['numpy>=1.19.0', 'qdarkstyle>=2.8.1', 'pyqt5>=5.15.2'],
     python_requires='>=3.9.0',
     name='Dirac Equation',
     version=__version__,

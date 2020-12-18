@@ -88,22 +88,25 @@ class BaseGrid(metaclass=ABCMeta):
 
         return data.reshape(old_shape)
 
+    @staticmethod
     @abstractmethod
-    def stag_to_reg(self, idx):
+    def stag_to_reg(idx, N):
         pass
 
 
 class UGrid(BaseGrid):
 
-    def stag_to_reg(self, idx):
+    @staticmethod
+    def stag_to_reg(idx, N):
         temp = 2 * idx
-        temp += (temp / self.N).astype(np.uint16) % 2
+        temp += (temp / N).astype(np.uint16) % 2
         return temp
 
 
 class VGrid(BaseGrid):
 
-    def stag_to_reg(self, idx):
+    @staticmethod
+    def stag_to_reg(idx, N):
         temp = 2 * idx
-        temp += 1 - (temp / self.N).astype(np.uint16) % 2
+        temp += 1 - (temp / N).astype(np.uint16) % 2
         return temp
