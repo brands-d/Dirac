@@ -39,13 +39,16 @@ class SpinorComponent(BaseGrid, metaclass=ABCMeta):
         return full_data.reshape(self.M, self.N)
 
     def __add__(self, other):
-        if isinstance(other, type(self)):
-            data = self.data + other.data
-        else:
-            data = self.data + other
+        data = self.data.copy()
+
+        not_nan = np.invert(np.isnan(other))
+        data[not_nan] = self.data[not_nan] + other[not_nan]
 
         new = type(self)(data, (self.M, self.N), self.periodic)
         return new
+
+    def __sub__(self, other):
+        return self + (-1) * other
 
     def __mul__(self, other):
         if isinstance(other, type(self)):
@@ -65,6 +68,7 @@ class SpinorComponent(BaseGrid, metaclass=ABCMeta):
         new = type(self)(data, (self.M, self.N), self.periodic)
         return new
 
+
 class UComponent(UGrid, SpinorComponent):
     pass
 
@@ -75,6 +79,12 @@ class VComponent(VGrid, SpinorComponent):
 
 class Spinor:
 
-    def __init__(self, data, periodic=False):
-        self.u = UComponent(data, periodic)
-        self.v = VComponent(data, periodic)
+    def __init__(self, u, v, periodic=False):
+        self.u = UComponent.init_on_full_grid(u, periodic)
+        self.v = VComponent.init_on_full_grid(v, periodic)
+        self.shape = u.shape
+
+    def __abs__(self):
+        u, v = self.u.to_full_grid(), self.v.to_full_grid()
+        norm = np.real(np.sqrt(u * np.conjugate(u) + v * np.conjugate(v)))
+        return norm

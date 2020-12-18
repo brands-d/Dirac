@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>group_box</class>
- <widget class="QWidget" name="group_box">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>555</width>
-    <height>523</height>
+    <width>413</width>
+    <height>241</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -30,7 +30,7 @@
     <number>5</number>
    </property>
    <item>
-    <widget class="QGroupBox" name="layout">
+    <widget class="QGroupBox" name="groupBox">
      <property name="font">
       <font>
        <pointsize>15</pointsize>
@@ -39,7 +39,7 @@
       </font>
      </property>
      <property name="title">
-      <string>Simulation Control</string>
+      <string>Player Control</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -61,9 +61,9 @@
        <number>0</number>
       </property>
       <item>
-       <layout class="QHBoxLayout" name="layout_2">
+       <layout class="QHBoxLayout" name="layout">
         <item>
-         <widget class="QCheckBox" name="save_checkbox">
+         <widget class="QPushButton" name="previous_button">
           <property name="font">
            <font>
             <pointsize>13</pointsize>
@@ -72,18 +72,17 @@
            </font>
           </property>
           <property name="toolTip">
-           <string>Whether the raw data gets saved.</string>
+           <string>Goes back one frame.
+
+Stops a running simulation.</string>
           </property>
           <property name="text">
-           <string>Save Data:</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
+           <string>Previous</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="save_lineedit">
+         <widget class="QPushButton" name="start_button">
           <property name="font">
            <font>
             <pointsize>13</pointsize>
@@ -92,62 +91,79 @@
            </font>
           </property>
           <property name="toolTip">
-           <string>File name of the raw data file.
-If empty the file name will be a simple timestamp.
-
-See the output/ directory.</string>
+           <string>Starts/Stops a the player.</string>
           </property>
-          <property name="placeholderText">
-           <string>time stamp</string>
+          <property name="text">
+           <string>Start</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="next_button">
+          <property name="font">
+           <font>
+            <pointsize>13</pointsize>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="toolTip">
+           <string>Goes forward one frame.
+
+Stops a running simulation.</string>
+          </property>
+          <property name="text">
+           <string>Next</string>
           </property>
          </widget>
         </item>
        </layout>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="layout_3">
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
         <item>
-         <spacer name="spacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeType">
-           <enum>QSizePolicy::Expanding</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QPushButton" name="run_button">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>250</width>
-            <height>0</height>
-           </size>
-          </property>
+         <widget class="QLabel" name="label">
           <property name="font">
            <font>
-            <pointsize>15</pointsize>
+            <pointsize>13</pointsize>
             <weight>50</weight>
             <bold>false</bold>
            </font>
           </property>
           <property name="toolTip">
-           <string>Starts the simulation. See statusbar for progress.</string>
+           <string>Speed the player goes through the individual images in FPS (frames per second).</string>
           </property>
           <property name="text">
-           <string>Run</string>
+           <string>Speed</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="spinBox">
+          <property name="font">
+           <font>
+            <pointsize>13</pointsize>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+          <property name="keyboardTracking">
+           <bool>false</bool>
+          </property>
+          <property name="suffix">
+           <string> FPS</string>
+          </property>
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>1000</number>
+          </property>
+          <property name="value">
+           <number>100</number>
           </property>
          </widget>
         </item>

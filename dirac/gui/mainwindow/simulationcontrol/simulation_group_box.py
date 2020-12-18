@@ -10,7 +10,7 @@ UI, _ = uic.loadUiType(os.path.splitext(__file__)[0] + '.ui')
 
 class SimulationControl(QWidget, UI):
     simulation_triggered = pyqtSignal()
-    run_button_texts = {'locked': 'Running', 'not locked': 'Run'}
+    simulation_stop_triggered = pyqtSignal()
 
     def __init__(self):
         super(SimulationControl, self).__init__()
@@ -18,12 +18,19 @@ class SimulationControl(QWidget, UI):
 
         self.connect()
 
-    def lock_run(self, bool):
-        self.run_button.setEnabled(not bool)
-        text = self.run_button_texts['locked'] if bool else \
-            self.run_button_texts['not locked']
+    def lock_run(self, state):
+        self.run_button.clicked.disconnect()
+
+        if state:
+            text = 'Cancel'
+            self.run_button.clicked.connect(
+                self.simulation_stop_triggered.emit)
+        else:
+            text = 'Run'
+            self.run_button.clicked.connect(self.simulation_triggered.emit)
 
         self.run_button.setText(text)
+        self.run_button.repaint()
 
     def get_settings(self):
         is_save = self.save_checkbox.isChecked()

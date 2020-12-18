@@ -74,6 +74,10 @@ class BaseGrid(metaclass=ABCMeta):
 
         return np.array(neighbours).T
 
+    def get_all_neighbours(self):
+        idx = self.stag_to_reg(np.arange(self.num), self.N)
+        return self.get_neighbours(idx)
+
     def __getitem__(self, idx):
         old_shape = idx.shape
         idx = idx.flatten()
