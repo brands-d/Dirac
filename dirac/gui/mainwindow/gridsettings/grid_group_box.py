@@ -11,3 +11,27 @@ class GridSettings(QWidget, UI):
     def __init__(self):
         super(GridSettings, self).__init__()
         self.setupUi(self)
+
+        self.connect()
+
+    def change_N(self, N):
+        if value % 2 != 0:
+            self.N_spinbox.setEnable(False)
+            self.N_spinbox.setValue(N + 1)
+            self.N_spinbox.setEnable(True)
+
+    def change_M(self, M):
+        if value % 2 != 0:
+            self.M_spinbox.setEnable(False)
+            self.M_spinbox.setValue(M + 1)
+            self.M_spinbox.setEnable(True)
+
+    def get_settings(self):
+        N = self.N_spinbox.value()
+        M = self.M_spinbox.value()
+
+        return {'N': N, 'M': M}
+
+    def connect(self):
+        self.N_spinbox.valueChanged.connect(self.change_N)
+        self.M_spinbox.valueChanged.connect(self.change_M)

@@ -11,3 +11,6 @@ class InitialSettings(QWidget, UI):
     def __init__(self):
         super(InitialSettings, self).__init__()
         self.setupUi(self)
+
+    def get_settings(self):
+        return {}

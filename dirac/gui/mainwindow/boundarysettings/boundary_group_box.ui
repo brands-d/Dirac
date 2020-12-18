@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>660</width>
-    <height>705</height>
+    <width>372</width>
+    <height>685</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -40,7 +40,7 @@
       </font>
      </property>
      <property name="toolTip">
-      <string>Adjust boundary related settings here.</string>
+      <string/>
      </property>
      <property name="title">
       <string>Boundary Settings</string>
@@ -68,9 +68,9 @@
        <number>0</number>
       </property>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <layout class="QHBoxLayout" name="layout_2">
         <item>
-         <widget class="QRadioButton" name="radioButton_2">
+         <widget class="QRadioButton" name="periodic_radiobutton">
           <property name="font">
            <font>
             <pointsize>13</pointsize>
@@ -93,7 +93,7 @@ Mutually exclusive with fixed value BC (i.e. Zero)</string>
          </widget>
         </item>
         <item>
-         <widget class="QRadioButton" name="radioButton">
+         <widget class="QRadioButton" name="zero_radiobutton">
           <property name="font">
            <font>
             <pointsize>13</pointsize>
@@ -122,9 +122,9 @@ Mutually exclusive with periodic BC.</string>
        </widget>
       </item>
       <item>
-       <layout class="QGridLayout" name="gridLayout">
+       <layout class="QGridLayout" name="layout_3">
         <item row="0" column="1">
-         <widget class="QLabel" name="label">
+         <widget class="QLabel" name="label_x">
           <property name="font">
            <font>
             <pointsize>13</pointsize>
@@ -145,7 +145,7 @@ Mutually exclusive with periodic BC.</string>
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="QSpinBox" name="spinBox">
+         <widget class="QSpinBox" name="x_order_spinbox">
           <property name="font">
            <font>
             <pointsize>11</pointsize>
@@ -174,7 +174,7 @@ Mutually exclusive with periodic BC.</string>
          </widget>
         </item>
         <item row="0" column="2">
-         <widget class="QLabel" name="label_2">
+         <widget class="QLabel" name="label_y">
           <property name="font">
            <font>
             <pointsize>13</pointsize>
@@ -195,7 +195,7 @@ Mutually exclusive with periodic BC.</string>
          </widget>
         </item>
         <item row="1" column="2">
-         <widget class="QSpinBox" name="spinBox_2">
+         <widget class="QSpinBox" name="y_order_spinbox">
           <property name="font">
            <font>
             <pointsize>13</pointsize>
@@ -225,7 +225,7 @@ Mutually exclusive with periodic BC.</string>
          </widget>
         </item>
         <item row="1" column="0">
-         <widget class="QLabel" name="label_3">
+         <widget class="QLabel" name="label_order">
           <property name="font">
            <font>
             <pointsize>13</pointsize>
@@ -246,7 +246,7 @@ Mutually exclusive with periodic BC.</string>
          </widget>
         </item>
         <item row="2" column="0">
-         <widget class="QLabel" name="label_4">
+         <widget class="QLabel" name="label_thickness">
           <property name="font">
            <font>
             <pointsize>13</pointsize>
@@ -267,7 +267,7 @@ Mutually exclusive with periodic BC.</string>
          </widget>
         </item>
         <item row="0" column="0">
-         <widget class="QCheckBox" name="checkBox">
+         <widget class="QCheckBox" name="pml_checkbox">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -294,7 +294,7 @@ Mutually exclusive with periodic BC.</string>
          </widget>
         </item>
         <item row="2" column="1">
-         <widget class="QSpinBox" name="spinBox_3">
+         <widget class="QSpinBox" name="x_thickness_spinbox">
           <property name="font">
            <font>
             <pointsize>13</pointsize>
@@ -330,7 +330,7 @@ Mutually exclusive with periodic BC.</string>
          </widget>
         </item>
         <item row="2" column="2">
-         <widget class="QSpinBox" name="spinBox_4">
+         <widget class="QSpinBox" name="y_thickness_spinbox">
           <property name="font">
            <font>
             <pointsize>13</pointsize>

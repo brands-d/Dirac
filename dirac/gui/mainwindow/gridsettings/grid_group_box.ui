@@ -40,7 +40,7 @@
       </font>
      </property>
      <property name="toolTip">
-      <string>Adjust grid related settings here.</string>
+      <string/>
      </property>
      <property name="title">
       <string>Grid Settings</string>
@@ -51,7 +51,7 @@
      <property name="flat">
       <bool>false</bool>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <layout class="QHBoxLayout" name="layout_2">
       <property name="spacing">
        <number>3</number>
       </property>
@@ -99,6 +99,9 @@ Can only be a multiple of 2.</string>
           <bold>false</bold>
           <stylestrategy>PreferAntialias</stylestrategy>
          </font>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
         </property>
         <property name="minimum">
          <number>4</number>
@@ -148,6 +151,11 @@ Can only be a multiple of 2.</string>
           <stylestrategy>PreferAntialias</stylestrategy>
          </font>
         </property>
+        <property name="toolTip">
+         <string>Adjust the height of the (full) grid.
+
+Can only be a multiple of 2.</string>
+        </property>
         <property name="text">
          <string>M:</string>
         </property>
@@ -167,9 +175,10 @@ Can only be a multiple of 2.</string>
          </font>
         </property>
         <property name="toolTip">
-         <string>Adjust the height of the (full) grid.
-
-Can only be a multiple of 2.</string>
+         <string/>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
         </property>
         <property name="minimum">
          <number>4</number>

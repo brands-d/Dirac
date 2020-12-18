@@ -1,9 +1,10 @@
 import qdarkstyle
 
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication
 
 from dirac.gui.mainwindow.mainwindow import MainWindow
-from dirac import __version__, __project__
+from dirac import __version__, __project__, __directory__
 
 
 class Dirac(QApplication):
@@ -14,6 +15,8 @@ class Dirac(QApplication):
         self.setApplicationName(__project__)
         self.setDesktopFileName(__project__)
         self.setStyleSheet(qdarkstyle.load_stylesheet(qt_api='pyqt5'))
+        self.setWindowIcon(
+            QIcon(str(__directory__ / 'resources/images/icon.png')))
 
     def run(self):
         main_window = MainWindow()
