@@ -1,26 +1,28 @@
 from copy import deepcopy
+
 import time
 import numpy as np
+
+from dirac.library.spinor import *
 
 
 class DiracSolver:
 
     def __init__(self, s0, num, delta=(0.1, 1, 1)):
         self.spinor = s0
-        dt, dx, dy = delta
+        percent_t_cfl, dx, dy = delta
 
-        self.n_u = s0.u.get_all_neighbours()
-        self.n_v = s0.u.get_all_neighbours()
+        self.n_u, self.n_v = s0.get_neighbours()
 
-        m = lambda t, x, y: 1
-        V = lambda t, x, y: 10
-        self.k_u, self.k_v = DiracSolver.calc_pre_factors(m, V, s0.shape)
+        m = lambda x, y: 1 * np.ones(x.shape)
+        V = lambda x, y: 10 * np.ones(x.shape)
 
-        t_cfl = (1 / dx + 1 / dy)**(-1)
-        self.dt = t_cfl * dt
+        # t_cfl = (1 / dx + 1 / dy)**(-1)
+        # self.dt = t_cfl * percent_t_cfl
         self.dt = np.sqrt(1 / 2)
         self.r_x, self.r_y = self.dt / dx, self.dt / dy
         self.times = np.arange(0, num) * self.dt
+        self.k_u, self.k_v = self.calc_pre_factors(m, V, (dx, dy))
 
     def solve(self, callback=None):
         results = []
@@ -32,38 +34,40 @@ class DiracSolver:
                     break
 
             results.append([t, deepcopy(self.spinor)])
-            self.advance_u(t)
-            self.advance_v(t)
+            self.advance_u()
+            self.advance_v()
 
         return results
 
-    def advance_u(self, t):
-        top, bottom, left, right = self.n_u
+    def advance_u(self):
+        self.spinor.u *= self.k_u[0]
+        self.spinor.u -= 1j * self.r_x * (self.spinor.v[self.n_u[2]]
+                                          - self.spinor.v[self.n_u[3]])
+        self.spinor.u -= self.r_y * (self.spinor.v[self.n_u[0]]
+                                     - self.spinor.v[self.n_u[1]])
+        self.spinor.u *= self.k_u[1]
 
-        self.spinor.u *= 1 + self.k_u(t) * self.dt / 2
-        self.spinor.u -= self.r_x * (self.spinor.v[right]
-                                     - self.spinor.v[left])
-        self.spinor.u -= 1j * self.r_y * (self.spinor.v[top]
-                                          - self.spinor.v[bottom])
-        self.spinor.u *= (1 - self.k_u(t) * self.dt / 2)**(-1)
+    def advance_v(self):
+        self.spinor.v *= self.k_v[0]
+        self.spinor.v += 1j * self.r_x * (self.spinor.u[self.n_v[2]]
+                                          - self.spinor.u[self.n_v[3]])
+        self.spinor.v -= self.r_y * (self.spinor.u[self.n_v[0]]
+                                     - self.spinor.u[self.n_v[1]])
+        self.spinor.v *= self.k_v[1]
 
-    def advance_v(self, t):
-        top, bottom, left, right = self.n_v
-
-        self.spinor.v *= 1 + self.k_v(t) * self.dt / 2
-        self.spinor.v -= self.r_x * (self.spinor.u[right]
-                                     - self.spinor.u[left])
-        self.spinor.v += 1j * self.r_y * (self.spinor.u[top]
-                                          - self.spinor.u[bottom])
-        self.spinor.v *= (1 - self.k_v(t) * self.dt / 2)**(-1)
-
-    @staticmethod
-    def calc_pre_factors(m, V, shape):
+    def calc_pre_factors(self, m, V, delta):
         ihc = 1j
-        M, N = shape
-        x, y = np.meshgrid(np.linspace(-1, 1, N), np.linspace(1, -1, M))
+        shape = self.spinor.shape
+        x, y = Spinor.get_meshgrid(shape, delta)
+        u_grid = UComponent.stag_to_reg(np.arange(self.spinor.u.num),
+                                        shape[1])
+        v_grid = VComponent.stag_to_reg(np.arange(self.spinor.v.num),
+                                        shape[1])
 
-        k_u = lambda t: (m(t, x, y) + V(t, x, y)) / ihc
-        k_v = lambda t: (V(t, x, y) - m(t, x, y)) / ihc
+        temp = ((m(x, y) + V(x, y)) / ihc).flatten()[u_grid]
+        k_u = [1 + temp * self.dt / 2, (1 - temp * self.dt / 2)**(-1)]
+
+        temp = ((V(x, y) - m(x, y)) / ihc).flatten()[v_grid]
+        k_v = [1 + temp * self.dt / 2, (1 - temp * self.dt / 2)**(-1)]
 
         return k_u, k_v

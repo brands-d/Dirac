@@ -15,16 +15,16 @@ class GridSettings(QWidget, UI):
         self.connect()
 
     def change_N(self, N):
-        if value % 2 != 0:
-            self.N_spinbox.setEnable(False)
+        if N % 2 != 0:
+            self.N_spinbox.blockSignals(True)
             self.N_spinbox.setValue(N + 1)
-            self.N_spinbox.setEnable(True)
+            self.N_spinbox.blockSignals(False)
 
     def change_M(self, M):
-        if value % 2 != 0:
-            self.M_spinbox.setEnable(False)
+        if M % 2 != 0:
+            self.M_spinbox.blockSignals(True)
             self.M_spinbox.setValue(M + 1)
-            self.M_spinbox.setEnable(True)
+            self.M_spinbox.blockSignals(False)
 
     def get_settings(self):
         N = self.N_spinbox.value()

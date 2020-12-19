@@ -93,6 +93,12 @@ class BaseGrid(metaclass=ABCMeta):
         return data.reshape(old_shape)
 
     @staticmethod
+    def get_range(shape, delta):
+        range_x = delta[0] * (shape[1] - 1) / 2
+        range_y = delta[1] * (shape[0] - 1) / 2
+        return range_x, range_y
+
+    @staticmethod
     @abstractmethod
     def stag_to_reg(idx, N):
         pass
@@ -113,4 +119,5 @@ class VGrid(BaseGrid):
     def stag_to_reg(idx, N):
         temp = 2 * idx
         temp += 1 - (temp / N).astype(np.uint16) % 2
+
         return temp

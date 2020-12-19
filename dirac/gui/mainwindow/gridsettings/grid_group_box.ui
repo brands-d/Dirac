@@ -113,7 +113,7 @@ Can only be a multiple of 2.</string>
          <number>2</number>
         </property>
         <property name="value">
-         <number>100</number>
+         <number>50</number>
         </property>
        </widget>
       </item>
@@ -190,7 +190,7 @@ Can only be a multiple of 2.</string>
          <number>2</number>
         </property>
         <property name="value">
-         <number>100</number>
+         <number>50</number>
         </property>
        </widget>
       </item>

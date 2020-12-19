@@ -1,6 +1,8 @@
 import h5py
+import numpy as np
 
 from dirac import __directory__
+from dirac.library.spinor import Spinor
 from .dirac_solver import DiracSolver
 
 
@@ -10,22 +12,28 @@ class DiracModel:
         self.settings = settings
 
     def run(self, callback=None):
-        import numpy as np
-        from dirac.library.spinor import Spinor
         dx, dy, dt = [self.settings[key] for key in ('dt', 'dx', 'dy')]
-        M, N = 50, 50
-        x, y = np.meshgrid(np.linspace(-1, 1, N), np.linspace(-1, 1, M))
-        d = np.sqrt(x**2 + y**2)
-        sigma, mu = 0.1, 0.0
-        g = np.exp(-((d - mu)**2 / (2.0 * sigma**2)))
-        s0 = Spinor(g, np.zeros(g.shape), periodic=True)
-        solver = DiracSolver(s0, 1000, delta=(dx, dy, dt))
+        time_steps = self.settings['time steps']
+        s0 = self.construct_initial_spinor()
+
+        solver = DiracSolver(s0, time_steps, delta=(dx, dy, dt))
         result = solver.solve(callback=callback)
+
+        self.save_results(result)
         return result
 
-    def save_results(self, results):
+    def construct_initial_spinor(self):
+        shape = [self.settings[key] for key in ('M', 'N')]
+        delta = [self.settings[key] for key in ('dx', 'dy')]
+        periodic = self.settings['boundary condition']
+        x, y = Spinor.get_meshgrid(shape, delta)
+        gauss = np.exp(-(x**2 + y**2) / 5)
+
+        return Spinor(gauss, np.zeros(gauss.shape), periodic=periodic)
+
+    def save_results(self, result):
         if self.settings['is save']:
             path = __directory__ / '../output' / self.settings['file name']
             with h5py.File(str(path), 'w') as file:
-                # file.create_dataset(results)
+                file.create_dataset(result)
                 pass

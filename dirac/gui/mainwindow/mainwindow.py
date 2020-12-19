@@ -38,8 +38,9 @@ class MainWindow(QMainWindow, UI):
         self.open_new_player(result)
 
     def open_new_player(self, result):
-        self.statusbar.showMessage('Simulation Finished. Open new '
-                                   'Player...')
+        self.statusbar.showMessage('Simulation Finished. Processing '
+                                   'results...')
+        QApplication.processEvents()
 
         new_player = Player(result)
         new_player.close_triggered.connect(self.player_closed)
@@ -47,6 +48,8 @@ class MainWindow(QMainWindow, UI):
         self.player_windows.append(new_player)
 
         new_player.show()
+
+        self.statusbar.showMessage('Finished.')
 
     def player_closed(self):
         player = self.sender()
@@ -80,7 +83,6 @@ class MainWindow(QMainWindow, UI):
         for widget in widgets:
             settings.update(widget.get_settings())
 
-        print(settings)
         return settings
 
     def closeEvent(self, event):

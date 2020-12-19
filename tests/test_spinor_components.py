@@ -38,7 +38,10 @@ class TestArithmetic(unittest.TestCase):
         self.u = UComponent.init_on_full_grid(TestArithmetic.data)
 
     def test_add(self):
-        assert_equal((self.u + self.u).data, 2 * self.u.data)
+        assert_equal((self.u + self.u.data).data, 2 * self.u.data)
+
+        fresh = UComponent.init_on_full_grid(TestArithmetic.data)
+        assert_equal(self.u.data, fresh.data)
 
     def test_mul(self):
         assert_equal((self.u * 2).data, 2 * self.u.data)

@@ -88,3 +88,17 @@ class Spinor:
         u, v = self.u.to_full_grid(), self.v.to_full_grid()
         norm = np.real(np.sqrt(u * np.conjugate(u) + v * np.conjugate(v)))
         return norm
+
+    @staticmethod
+    def get_meshgrid(shape, delta):
+        range = BaseGrid.get_range(shape, delta)
+        x = np.linspace(-range[0], range[0], shape[1], endpoint=True)
+        y = np.linspace(-range[1], range[1], shape[0], endpoint=True)
+
+        return np.meshgrid(x, y)
+
+    def get_neighbours(self):
+        n_u = self.u.get_all_neighbours()
+        n_v = self.v.get_all_neighbours()
+
+        return n_u, n_v

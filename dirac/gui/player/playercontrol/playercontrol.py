@@ -19,6 +19,19 @@ class PlayerControl(QWidget, UI):
 
         self.connect()
 
+    def start(self):
+        if self.start_button.text() == 'Start':
+            self.start_button.setText('Stop')
+            self.start_triggered.emit()
+
+        else:
+            self.start_button.setText('Start')
+            self.stop_triggered.emit()
+
+    def get_fps(self):
+        return self.fps_spinbox.value()
+
     def connect(self):
         self.next_button.clicked.connect(self.next_triggered.emit)
         self.previous_button.clicked.connect(self.previous_triggered.emit)
+        self.start_button.clicked.connect(self.start)

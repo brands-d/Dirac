@@ -139,7 +139,7 @@ Stops a running simulation.</string>
          </widget>
         </item>
         <item>
-         <widget class="QSpinBox" name="spinBox">
+         <widget class="QSpinBox" name="fps_spinbox">
           <property name="font">
            <font>
             <pointsize>13</pointsize>
@@ -160,10 +160,10 @@ Stops a running simulation.</string>
            <number>1</number>
           </property>
           <property name="maximum">
-           <number>1000</number>
+           <number>100</number>
           </property>
           <property name="value">
-           <number>100</number>
+           <number>10</number>
           </property>
          </widget>
         </item>

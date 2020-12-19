@@ -23,11 +23,7 @@ class SurfacePlot(GLViewWidget):
         if self.image is not None:
             self.removeItem(self.image)
 
-        x = np.linspace(-1, 1, s.shape[1], endpoint=True)
-        y = np.linspace(-1, 1, s.shape[0], endpoint=True)
-        self.image = GLSurfacePlotItem(x=x, y=y, z=abs(s),
-                                       shader='heightColor',
-                                       smooth=False)
+        self.image = GLSurfacePlotItem(z=s, shader='heightColor', smooth=False)
         self.addItem(self.image)
 
     def toggle_grid(self):
