@@ -3,7 +3,9 @@ from time import localtime, strftime
 
 from PyQt5 import uic
 from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtWidgets import QWidget
+from PyQt5.QtWidgets import QWidget, QFileDialog
+
+from dirac import __directory__
 
 UI, _ = uic.loadUiType(os.path.splitext(__file__)[0] + '.ui')
 
@@ -11,6 +13,7 @@ UI, _ = uic.loadUiType(os.path.splitext(__file__)[0] + '.ui')
 class SimulationControl(QWidget, UI):
     simulation_triggered = pyqtSignal()
     simulation_stop_triggered = pyqtSignal()
+    load_triggered = pyqtSignal(list)
 
     def __init__(self):
         super(SimulationControl, self).__init__()
@@ -40,5 +43,13 @@ class SimulationControl(QWidget, UI):
 
         return {'is save': is_save, 'file name': file_name}
 
+    def load(self):
+        start_path = __directory__ / '../output'
+        paths, _ = QFileDialog.getOpenFileNames(None, 'Open file(s)',
+                                                str(start_path))
+
+        self.load_triggered.emit(paths)
+
     def connect(self):
         self.run_button.clicked.connect(self.simulation_triggered.emit)
+        self.load_button.clicked.connect(self.load)

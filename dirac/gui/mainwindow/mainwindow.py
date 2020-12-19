@@ -71,6 +71,16 @@ class MainWindow(QMainWindow, UI):
 
         return False
 
+    def load(self, paths):
+        for path in paths:
+            try:
+                result = DiracModel.init_from_path(path)
+            except IOError:
+                self.statusbar.showMessage(
+                    '{} could not be loaded.'.format(path))
+
+            self.open_new_player(result)
+
     def stop_simulation(self):
         self.stop = True
 
@@ -110,3 +120,4 @@ class MainWindow(QMainWindow, UI):
             self.trigger_simulation)
         self.simulation_control.simulation_stop_triggered.connect(
             self.stop_simulation)
+        self.simulation_control.load_triggered.connect(self.load)
