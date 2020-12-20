@@ -13,14 +13,13 @@ class BoundarySettings(QWidget, UI):
         self.setupUi(self)
 
     def get_settings(self):
-        boundary_condition = 'periodic' if \
-            self.periodic_radiobutton.isChecked() else 'zero'
+        periodic = self.periodic_radiobutton.isChecked()
         is_pml = self.pml_checkbox.isChecked()
         x_order = self.x_order_spinbox.value()
         y_order = self.y_order_spinbox.value()
         x_thickness = self.x_thickness_spinbox.value() / 100
         y_thickness = self.y_thickness_spinbox.value() / 100
 
-        return {'boundary condition': boundary_condition, 'pml': is_pml,
+        return {'periodic': periodic, 'pml': is_pml,
                 'x order': x_order, 'x thickness': x_thickness,
                 'y order': y_order, 'y thickness': y_thickness}

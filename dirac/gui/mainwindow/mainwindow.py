@@ -7,7 +7,6 @@ from .gridsettings.grid_group_box import GridSettings
 from .boundarysettings.boundary_group_box import BoundarySettings
 from .simulationssettings.simulation_group_box import SimulationSettings
 from .initialsettings.initial_group_box import InitialSettings
-from .simulationcontrol.simulation_group_box import SimulationControl
 from ..player.player import Player
 from dirac.model.model import DiracModel
 
@@ -26,14 +25,14 @@ class MainWindow(QMainWindow, UI):
         self.connect()
 
     def trigger_simulation(self):
-        self.simulation_control.lock_run(True)
+        self.simulation_settings.lock_run(True)
 
         settings = self.get_settings()
         model = DiracModel(settings)
         result = model.run(callback=self.inter_loop_update)
 
         self.stop = False
-        self.simulation_control.lock_run(False)
+        self.simulation_settings.lock_run(False)
 
         self.open_new_player(result)
 
@@ -75,11 +74,10 @@ class MainWindow(QMainWindow, UI):
         for path in paths:
             try:
                 result = DiracModel.init_from_path(path)
+                self.open_new_player(result)
             except IOError:
                 self.statusbar.showMessage(
                     '{} could not be loaded.'.format(path))
-
-            self.open_new_player(result)
 
     def stop_simulation(self):
         self.stop = True
@@ -87,8 +85,7 @@ class MainWindow(QMainWindow, UI):
     def get_settings(self):
         settings = {}
         widgets = [self.grid_settings, self.boundary_settings,
-                   self.simulation_settings, self.initial_settings,
-                   self.simulation_control]
+                   self.simulation_settings, self.initial_settings]
 
         for widget in widgets:
             settings.update(widget.get_settings())
@@ -107,17 +104,15 @@ class MainWindow(QMainWindow, UI):
         self.boundary_settings = BoundarySettings()
         self.simulation_settings = SimulationSettings()
         self.initial_settings = InitialSettings()
-        self.simulation_control = SimulationControl()
 
         self.central_widget.layout().addWidget(self.grid_settings)
         self.central_widget.layout().addWidget(self.boundary_settings)
         self.central_widget.layout().addWidget(self.initial_settings)
         self.central_widget.layout().addWidget(self.simulation_settings)
-        self.central_widget.layout().addWidget(self.simulation_control)
 
     def connect(self):
-        self.simulation_control.simulation_triggered.connect(
+        self.simulation_settings.simulation_triggered.connect(
             self.trigger_simulation)
-        self.simulation_control.simulation_stop_triggered.connect(
+        self.simulation_settings.simulation_stop_triggered.connect(
             self.stop_simulation)
-        self.simulation_control.load_triggered.connect(self.load)
+        self.simulation_settings.load_triggered.connect(self.load)

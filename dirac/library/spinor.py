@@ -7,19 +7,19 @@ from dirac.library.grid import *
 
 class SpinorComponent(BaseGrid, metaclass=ABCMeta):
 
-    def __init__(self, data, shape, periodic=False):
-        M, N = shape
+    def __init__(self, data, shape, range, periodic=False):
+        self.shape = shape
         self.data = data
 
-        BaseGrid.__init__(self, N, M, periodic)
+        BaseGrid.__init__(self, shape, range, periodic)
 
     @classmethod
-    def init_on_full_grid(cls, data, periodic=False):
+    def init_on_full_grid(cls, data, range, periodic=False):
         shape = data.shape
         idx = cls.stag_to_reg(np.arange(int(data.size / 2)), shape[1])
         data = data.flatten()[idx]
 
-        return cls(data, shape, periodic)
+        return cls(data, shape, range, periodic)
 
     def complex_interpolate(self, idx):
         n = self[self.get_neighbours(idx)]
@@ -44,7 +44,7 @@ class SpinorComponent(BaseGrid, metaclass=ABCMeta):
         not_nan = np.invert(np.isnan(other))
         data[not_nan] = self.data[not_nan] + other[not_nan]
 
-        new = type(self)(data, (self.M, self.N), self.periodic)
+        new = type(self)(data, (self.M, self.N), self.range, self.periodic)
         return new
 
     def __sub__(self, other):
@@ -56,7 +56,7 @@ class SpinorComponent(BaseGrid, metaclass=ABCMeta):
         else:
             data = self.data * other
 
-        new = type(self)(data, (self.M, self.N), self.periodic)
+        new = type(self)(data, (self.M, self.N), self.range, self.periodic)
         return new
 
     def __rmul__(self, other):
@@ -65,7 +65,7 @@ class SpinorComponent(BaseGrid, metaclass=ABCMeta):
         else:
             data = self.data * other
 
-        new = type(self)(data, (self.M, self.N), self.periodic)
+        new = type(self)(data, (self.M, self.N), self.range, self.periodic)
         return new
 
 
@@ -79,26 +79,25 @@ class VComponent(VGrid, SpinorComponent):
 
 class Spinor:
 
-    def __init__(self, u, v, periodic=False):
-        self.u = UComponent.init_on_full_grid(u, periodic)
-        self.v = VComponent.init_on_full_grid(v, periodic)
-        self.shape = u.shape
-
-    def __abs__(self):
-        u, v = self.u.to_full_grid(), self.v.to_full_grid()
-        norm = np.real(np.sqrt(u * np.conjugate(u) + v * np.conjugate(v)))
-        return norm
+    def __init__(self, u, v, range=((-1, 1), (-1, 1)), periodic=False):
+        self.u = UComponent.init_on_full_grid(u, range, periodic)
+        self.v = VComponent.init_on_full_grid(v, range, periodic)
+        self.shape = self.u.shape
+        self.range = self.u.range
+        self.dx = self.u.dx
+        self.dy = self.u.dy
 
     @staticmethod
-    def get_meshgrid(shape, delta):
-        range = BaseGrid.get_range(shape, delta)
-        x = np.linspace(-range[0], range[0], shape[1], endpoint=True)
-        y = np.linspace(-range[1], range[1], shape[0], endpoint=True)
-
-        return np.meshgrid(x, y)
+    def get_meshgrid(range, shape):
+        return BaseGrid.get_full_meshgrid(range, shape)
 
     def get_neighbours(self):
         n_u = self.u.get_all_neighbours()
         n_v = self.v.get_all_neighbours()
 
         return n_u, n_v
+
+    def __abs__(self):
+        u, v = self.u.to_full_grid(), self.v.to_full_grid()
+        norm = np.real(np.sqrt(u * np.conjugate(u) + v * np.conjugate(v)))
+        return norm

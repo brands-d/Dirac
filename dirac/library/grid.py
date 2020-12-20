@@ -5,15 +5,40 @@ import numpy as np
 
 class BaseGrid(metaclass=ABCMeta):
 
-    def __init__(self, N, M, periodic=False):
-        self.N = int(N)
-        self.M = int(M)
+    def __init__(self, shape, range=((-1, 1), (-1, 1)), periodic=False):
+        self.N = int(shape[1])
+        self.M = int(shape[0])
+        self.range = range
+        self.dx = 2 * (range[0][1] - range[0][0]) / (self.N - 1)
+        self.dy = 2 * (range[1][1] - range[1][0]) / (self.M - 1)
         self.periodic = periodic
-        self.num = int(N * M / 2)
+        self.num = int(self.N * self.M / 2)
 
     @staticmethod
     def reg_to_stag(idx):
         return (idx / 2).astype(np.uint16)
+
+    @staticmethod
+    def get_x_axis(range, N):
+        x = np.linspace(range[0][0], range[0][1], N,
+                        endpoint=True)
+
+        return x
+
+    @staticmethod
+    def get_y_axis(range, M):
+        y = np.linspace(range[1][0], range[1][1], M,
+                        endpoint=True)
+
+        return y
+
+    @classmethod
+    def get_full_meshgrid(cls, range, shape):
+        M, N = shape
+        x = cls.get_x_axis(range, N)
+        y = cls.get_y_axis(range, M)
+
+        return np.meshgrid(y, x)
 
     def is_top(self, idx):
         return idx < self.N
@@ -78,6 +103,16 @@ class BaseGrid(metaclass=ABCMeta):
         idx = self.stag_to_reg(np.arange(self.num), self.N)
         return self.get_neighbours(idx)
 
+    def get_space_points(self):
+        idx = self.stag_to_reg(np.arange(self.num), self.N)
+
+        X, Y = self.get_full_meshgrid(self.range, self.shape)
+
+        x = X.flatten()[idx]
+        y = Y.flatten()[idx]
+
+        return np.array(x), np.array(y)
+
     def __getitem__(self, idx):
         old_shape = idx.shape
         idx = idx.flatten()
@@ -91,12 +126,6 @@ class BaseGrid(metaclass=ABCMeta):
         data[not_nan_mask] = self.data[stag_idx]
 
         return data.reshape(old_shape)
-
-    @staticmethod
-    def get_range(shape, delta):
-        range_x = delta[0] * (shape[1] - 1) / 2
-        range_y = delta[1] * (shape[0] - 1) / 2
-        return range_x, range_y
 
     @staticmethod
     @abstractmethod

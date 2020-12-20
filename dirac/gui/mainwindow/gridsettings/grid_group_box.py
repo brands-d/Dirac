@@ -26,12 +26,48 @@ class GridSettings(QWidget, UI):
             self.M_spinbox.setValue(M + 1)
             self.M_spinbox.blockSignals(False)
 
+    def change_x_min(self, value):
+        if value >= self.x_max_spinbox.value():
+            self.x_max_spinbox.blockSignals(True)
+            step = self.x_max_spinbox.singleStep()
+            self.x_max_spinbox.setValue(value + step)
+            self.x_max_spinbox.blockSignals(False)
+
+    def change_x_max(self, value):
+        if value <= self.x_min_spinbox.value():
+            self.x_min_spinbox.blockSignals(True)
+            step = self.x_min_spinbox.singleStep()
+            self.x_min_spinbox.setValue(value - step)
+            self.x_min_spinbox.blockSignals(False)
+
+    def change_y_min(self, value):
+        if value >= self.y_max_spinbox.value():
+            self.y_max_spinbox.blockSignals(True)
+            step = self.y_max_spinbox.singleStep()
+            self.y_max_spinbox.setValue(value + step)
+            self.y_max_spinbox.blockSignals(False)
+
+    def change_y_max(self, value):
+        if value <= self.y_min_spinbox.value():
+            self.y_min_spinbox.blockSignals(True)
+            step = self.y_min_spinbox.singleStep()
+            self.y_min_spinbox.setValue(value - step)
+            self.y_min_spinbox.blockSignals(False)
+
     def get_settings(self):
         N = self.N_spinbox.value()
         M = self.M_spinbox.value()
+        x_min = self.x_min_spinbox.value()
+        x_max = self.x_max_spinbox.value()
+        y_min = self.y_min_spinbox.value()
+        y_max = self.y_max_spinbox.value()
 
-        return {'N': N, 'M': M}
+        return {'shape': (M, N), 'range': ((x_min, x_max), (y_min, y_max))}
 
     def connect(self):
         self.N_spinbox.valueChanged.connect(self.change_N)
         self.M_spinbox.valueChanged.connect(self.change_M)
+        self.x_min_spinbox.valueChanged.connect(self.change_x_min)
+        self.x_max_spinbox.valueChanged.connect(self.change_x_max)
+        self.y_min_spinbox.valueChanged.connect(self.change_y_min)
+        self.y_max_spinbox.valueChanged.connect(self.change_y_max)

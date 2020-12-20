@@ -21,8 +21,12 @@ class Player(QWidget, UI):
         super(QWidget, self).__init__()
         self.setupUi(self)
 
+        self.range = result[0][1].range
+        self.shape = result[0][1].shape
+        self.delta = (result[0][1].dx, result[0][1].dx)
+        self.x = result[0][1].u.get_x_axis(self.range, self.shape[1])
+        self.y = result[0][1].u.get_y_axis(self.range, self.shape[0])
         self.result = [[t, abs(s)] for t, s in result]
-
         self.current_idx = 0
 
         self.setup()
@@ -70,16 +74,15 @@ class Player(QWidget, UI):
         self.plot.deleteLater()
 
         if isinstance(self.plot, SurfacePlot):
-            self.plot = ImagePlot(layout)
+            self.plot = ImagePlot(layout, self.range)
         else:
-            shape = self.result[0][1].shape
-            self.plot = SurfacePlot(layout, shape)
+            self.plot = SurfacePlot(layout, self.x, self.y)
 
         self.set_image(self.current_idx)
 
     def set_image(self, idx):
         time, spinor = self.result[idx]
-        self.plot.plot(spinor)
+        self.plot.plot(spinor, self.range)
 
         self.information.set_current_idx(idx, len(self.result))
         self.information.set_current_time(time)
@@ -90,7 +93,7 @@ class Player(QWidget, UI):
         event.accept()
 
     def setup(self):
-        self.plot = ImagePlot(self.widget.layout())
+        self.plot = ImagePlot(self.widget.layout(), self.range)
         self.player_control = PlayerControl()
         self.information = Information()
         self.export = Export()

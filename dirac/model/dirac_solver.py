@@ -8,21 +8,20 @@ from dirac.library.spinor import *
 
 class DiracSolver:
 
-    def __init__(self, s0, num, delta=(0.1, 1, 1)):
+    def __init__(self, s0, num, dt=1):
         self.spinor = s0
-        percent_t_cfl, dx, dy = delta
-
+        self.dt = self.calc_t_cfl() * dt
         self.n_u, self.n_v = s0.get_neighbours()
+        self.r_x, self.r_y = self.dt / s0.dx, self.dt / s0.dy
 
         m = lambda x, y: 20 * np.ones(x.shape)
-        V = lambda x, y: -20*x
+        V = lambda x, y: -20 * x
 
-        # t_cfl = (1 / dx + 1 / dy)**(-1)
-        # self.dt = t_cfl * percent_t_cfl
-        self.dt = np.sqrt(1 / 2)
-        self.r_x, self.r_y = self.dt / dx, self.dt / dy
         self.times = np.arange(0, num) * self.dt
-        self.k_u, self.k_v = self.calc_pre_factors(m, V, (dx, dy))
+        self.k_u, self.k_v = self.calc_pre_factors(m, V)
+
+    def calc_t_cfl(self):
+        return (1 / self.spinor.dx + 1 / self.spinor.dy)**(-1)
 
     def solve(self, callback=None):
         results = []
@@ -55,19 +54,15 @@ class DiracSolver:
                                      - self.spinor.u[self.n_v[1]])
         self.spinor.v *= self.k_v[1]
 
-    def calc_pre_factors(self, m, V, delta):
+    def calc_pre_factors(self, m, V):
         ihc = 1j
-        shape = self.spinor.shape
-        x, y = Spinor.get_meshgrid(shape, delta)
-        u_grid = UComponent.stag_to_reg(np.arange(self.spinor.u.num),
-                                        shape[1])
-        v_grid = VComponent.stag_to_reg(np.arange(self.spinor.v.num),
-                                        shape[1])
+        x_u, y_u = self.spinor.u.get_space_points()
+        x_v, y_v = self.spinor.v.get_space_points()
 
-        temp = ((m(x, y) + V(x, y)) / ihc).flatten()[u_grid]
+        temp = (m(x_u, y_u) + V(x_u, y_u)) / ihc
         k_u = [1 + temp * self.dt / 2, (1 - temp * self.dt / 2)**(-1)]
 
-        temp = ((V(x, y) - m(x, y)) / ihc).flatten()[v_grid]
+        temp = (V(x_v, y_v) - m(x_v, y_v)) / ihc
         k_v = [1 + temp * self.dt / 2, (1 - temp * self.dt / 2)**(-1)]
 
         return k_u, k_v

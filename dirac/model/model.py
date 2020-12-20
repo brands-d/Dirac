@@ -25,25 +25,24 @@ class DiracModel:
             raise IOError
 
     def run(self, callback=None):
-        dx, dy, dt = [self.settings[key] for key in ('dt', 'dx', 'dy')]
+        dt = self.settings['dt']
         time_steps = self.settings['time steps']
         s0 = self.construct_initial_spinor()
 
-        solver = DiracSolver(s0, time_steps, delta=(dx, dy, dt))
+        solver = DiracSolver(s0, time_steps, dt=dt)
         result = solver.solve(callback=callback)
-
         self.save_results(result)
+
         return result
 
     def construct_initial_spinor(self):
-        shape = [self.settings[key] for key in ('N', 'M')]
-        delta = [self.settings[key] for key in ('dx', 'dy')]
-        periodic = True if self.settings['boundary condition'] =='periodic' \
-            else False
-        x, y = Spinor.get_meshgrid(shape, delta)
-        gauss = np.exp(-((x - 20)**2 + y**2) / 5)
-
-        return Spinor(gauss, np.zeros(gauss.shape), periodic=periodic)
+        shape = self.settings['shape']
+        range = self.settings['range']
+        periodic = self.settings['periodic']
+        x, y = Spinor.get_meshgrid(range, shape)
+        gauss = np.exp(-(x**2 + y**2) / 0.05)
+        
+        return Spinor(gauss, np.zeros(gauss.shape), range, periodic=periodic)
 
     def save_results(self, result):
         if self.settings['is save']:
