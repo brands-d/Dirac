@@ -14,8 +14,8 @@ class DiracSolver:
 
         self.n_u, self.n_v = s0.get_neighbours()
 
-        m = lambda x, y: 1 * np.ones(x.shape)
-        V = lambda x, y: 10 * np.ones(x.shape)
+        m = lambda x, y: 20 * np.ones(x.shape)
+        V = lambda x, y: -20*x
 
         # t_cfl = (1 / dx + 1 / dy)**(-1)
         # self.dt = t_cfl * percent_t_cfl

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>widget</class>
- <widget class="QWidget" name="widget">
+ <class>player</class>
+ <widget class="QWidget" name="player">
   <property name="windowModality">
    <enum>Qt::WindowModal</enum>
   </property>
@@ -19,24 +19,17 @@
   <property name="windowTitle">
    <string>Player</string>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="SurfacePlot" name="plot" native="true">
+    <widget class="QWidget" name="widget" native="true">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
      </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_2"/>
     </widget>
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>SurfacePlot</class>
-   <extends>QWidget</extends>
-   <header>dirac/gui/player/plot/plot</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

@@ -36,11 +36,12 @@ class DiracModel:
         return result
 
     def construct_initial_spinor(self):
-        shape = [self.settings[key] for key in ('M', 'N')]
+        shape = [self.settings[key] for key in ('N', 'M')]
         delta = [self.settings[key] for key in ('dx', 'dy')]
-        periodic = self.settings['boundary condition']
+        periodic = True if self.settings['boundary condition'] =='periodic' \
+            else False
         x, y = Spinor.get_meshgrid(shape, delta)
-        gauss = np.exp(-(x**2 + y**2) / 5)
+        gauss = np.exp(-((x - 20)**2 + y**2) / 5)
 
         return Spinor(gauss, np.zeros(gauss.shape), periodic=periodic)
 
