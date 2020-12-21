@@ -87,10 +87,10 @@ class Player(QWidget, UI):
 
         if isinstance(self.plot, SurfacePlot):
             self.plot = ImagePlot(layout, self.range)
+            self.set_exporter()
         else:
             self.plot = SurfacePlot(layout, self.x, self.y)
 
-        self.set_exporter()
         self.set_image(self.current_idx)
 
     def set_exporter(self):
@@ -117,6 +117,9 @@ class Player(QWidget, UI):
             os.system('rm {0}/{1:.0f}.png'.format(path, i))
 
     def export_image(self):
+        if isinstance(self.plot, SurfacePlot):
+            self.toggle_plot_type()
+
         path = __directory__ / '../output'
         if not os.path.exists(path):
             os.makedirs(path)
