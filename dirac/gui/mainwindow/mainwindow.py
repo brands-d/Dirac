@@ -37,11 +37,7 @@ class MainWindow(QMainWindow, UI):
         self.open_new_player(result)
 
     def open_new_player(self, result):
-        self.statusbar.showMessage('Simulation Finished. Processing '
-                                   'results...')
-        QApplication.processEvents()
-
-        new_player = Player(result)
+        new_player = Player(result, self.inter_process_update)
         new_player.close_triggered.connect(self.player_closed)
 
         self.player_windows.append(new_player)
@@ -69,6 +65,14 @@ class MainWindow(QMainWindow, UI):
             return True
 
         return False
+
+    def inter_process_update(self, progress):
+        percent = 100 * progress
+        self.statusbar.showMessage('Simulation Finished. Processing '
+                                   'results: {0:.1f}%'.format(
+            percent))
+
+        QApplication.processEvents()
 
     def load(self, paths):
         for path in paths:

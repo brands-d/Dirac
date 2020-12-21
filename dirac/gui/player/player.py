@@ -1,8 +1,10 @@
 import os
 import time
 
+import pyqtgraph.exporters as ex
+
 from PyQt5 import uic
-from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import pyqtSignal, QRectF
 from PyQt5.QtWidgets import QApplication, QVBoxLayout, QWidget
 
 from .export.exportbox import Export
@@ -10,6 +12,7 @@ from .information.informationbox import Information
 from .playercontrol.playercontrol import PlayerControl
 from .plot.plot import *
 from .viewsettings.viewsettings import ViewSettings
+from dirac import __directory__
 
 UI, _ = uic.loadUiType(os.path.splitext(__file__)[0] + '.ui')
 
@@ -17,7 +20,7 @@ UI, _ = uic.loadUiType(os.path.splitext(__file__)[0] + '.ui')
 class Player(QWidget, UI):
     close_triggered = pyqtSignal()
 
-    def __init__(self, result):
+    def __init__(self, result, callback):
         super(QWidget, self).__init__()
         self.setupUi(self)
 
@@ -26,13 +29,22 @@ class Player(QWidget, UI):
         self.delta = (result[0][1].dx, result[0][1].dx)
         self.x = result[0][1].u.get_x_axis(self.range, self.shape[1])
         self.y = result[0][1].u.get_y_axis(self.range, self.shape[0])
-        self.result = [[t, abs(s)] for t, s in result]
+        self.result = self.process_results(result, callback)
         self.current_idx = 0
+        self.exporter = None
 
         self.setup()
         self.connect()
 
         self.set_image(self.current_idx)
+
+    def process_results(self, results, callback):
+        proc_results = []
+        for i, result in enumerate(results):
+            callback(i / len(results))
+            proc_results.append([result[0], abs(result[1])])
+
+        return proc_results
 
     def next(self):
         if self.current_idx < len(self.result) - 1:
@@ -78,7 +90,11 @@ class Player(QWidget, UI):
         else:
             self.plot = SurfacePlot(layout, self.x, self.y)
 
+        self.set_exporter()
         self.set_image(self.current_idx)
+
+    def set_exporter(self):
+        self.exporter = ex.ImageExporter(self.plot.get_plot_item())
 
     def set_image(self, idx):
         time, spinor = self.result[idx]
@@ -86,6 +102,34 @@ class Player(QWidget, UI):
 
         self.information.set_current_idx(idx, len(self.result))
         self.information.set_current_time(time)
+
+    def export_movie(self):
+        self.set_image(0)
+        self.current_idx = 0
+        for i, _ in enumerate(self.result):
+            self.next()
+            self.export_image()
+
+        path = __directory__ / '../output'
+        os.system('ffmpeg -i {0}/%d.png  {0}/output.mp4'.format(str(path)))
+
+        for i in range(len(self.result)):
+            os.system('rm {0}/{1:.0f}.png'.format(path, i))
+
+    def export_image(self):
+        path = __directory__ / '../output'
+        if not os.path.exists(path):
+            os.makedirs(path)
+
+        plot_item = self.plot.get_plot_item()
+        height = plot_item.sceneBoundingRect().height()
+        square_rect = QRectF(0, 0, height, height)
+        plot_item.scene().setSceneRect(square_rect)
+        self.exporter.parameters()['height'] = 2000
+        self.exporter.parameters()['width'] = 2000
+
+        path = path / '{0:.0f}.png'.format(self.current_idx)
+        self.exporter.export(str(path))
 
     def closeEvent(self, event):
         self.is_play = False
@@ -106,9 +150,13 @@ class Player(QWidget, UI):
         layout.addWidget(self.view)
         layout.addWidget(self.export)
 
+        self.set_exporter()
+
     def connect(self):
         self.player_control.next_triggered.connect(self.next)
         self.player_control.previous_triggered.connect(self.previous)
         self.player_control.start_triggered.connect(self.start)
         self.player_control.stop_triggered.connect(self.stop)
         self.view.plot_toggled.connect(self.toggle_plot_type)
+        self.export.save_image_triggered.connect(self.export_image)
+        self.export.save_movie_triggered.connect(self.export_movie)

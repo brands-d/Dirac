@@ -23,6 +23,9 @@ class SurfacePlot(GLViewWidget):
     def plot(self, s, *args):
         self.image.setData(z=s)
 
+    def get_plot_item(self):
+        return self.image
+
     def setup(self, x, y):
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.image = GLSurfacePlotItem(x=y, y=x, smooth=True,
@@ -34,15 +37,17 @@ class SurfacePlot(GLViewWidget):
 class ImagePlot(ImageView):
 
     def __init__(self, layout, range, *args, **kwargs):
-        self.plot_view = PlotItem()
+        self.plot_view = PlotItem(lockAspect=1)
 
-        super(ImagePlot, self).__init__(*args, view=self.plot_view,
-                                        **kwargs)
+        super(ImagePlot, self).__init__(*args, view=self.plot_view, **kwargs)
 
         layout.insertWidget(0, self)
 
         self.setup(range)
         self.show()
+
+    def get_plot_item(self):
+        return self.plot_view
 
     def plot(self, s, range):
         self.clear()

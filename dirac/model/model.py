@@ -41,7 +41,7 @@ class DiracModel:
         periodic = self.settings['periodic']
         x, y = Spinor.get_meshgrid(range, shape)
         gauss = np.exp(-(x**2 + y**2) / 0.05)
-        
+
         return Spinor(gauss, np.zeros(gauss.shape), range, periodic=periodic)
 
     def save_results(self, result):
