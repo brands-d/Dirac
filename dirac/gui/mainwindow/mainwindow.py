@@ -109,10 +109,10 @@ class MainWindow(QMainWindow, UI):
         self.simulation_settings = SimulationSettings()
         self.initial_settings = InitialSettings()
 
-        self.central_widget.layout().addWidget(self.grid_settings)
-        self.central_widget.layout().addWidget(self.boundary_settings)
-        self.central_widget.layout().addWidget(self.initial_settings)
-        self.central_widget.layout().addWidget(self.simulation_settings)
+        self.layout.addWidget(self.grid_settings)
+        self.layout_2.insertWidget(0, self.boundary_settings)
+        self.layout.addWidget(self.initial_settings)
+        self.layout_2.insertWidget(1, self.simulation_settings)
 
     def connect(self):
         self.simulation_settings.simulation_triggered.connect(

@@ -57,18 +57,18 @@ class DiracSolver:
         x_v, y_v = self.spinor.v.get_space_points()
 
         def sigma(x, y):
-            border = 0.4
+            border = 0.75
             values = np.zeros(x.shape, dtype=np.complex_)
             values[abs(x) > border] = 50 * (
                     abs(x[abs(x) > border]) - border)**4
             values[abs(y) > border] = 50 * (
-                        abs(x[abs(x) > border]) - border)**4
+                    abs(x[abs(x) > border]) - border)**4
             return values
 
-        temp = (m + V(x_u, y_u)) / ihc - sigma(x_u, y_u)
+        temp = (m(x_u) + V(x_u)) / ihc - sigma(x_u,y_u)
         k_u = [1 + temp * self.dt / 2, (1 - temp * self.dt / 2)**(-1)]
 
-        temp = (V(x_v, y_v) - m) / ihc - sigma(x_v, y_v)
+        temp = (V(x_v) - m(x_v)) / ihc - sigma(x_v,y_v)
         k_v = [1 + temp * self.dt / 2, (1 - temp * self.dt / 2)**(-1)]
 
         return k_u, k_v
