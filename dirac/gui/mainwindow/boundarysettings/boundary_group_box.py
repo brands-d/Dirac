@@ -19,7 +19,10 @@ class BoundarySettings(QWidget, UI):
         y_order = self.y_order_spinbox.value()
         x_thickness = self.x_thickness_spinbox.value() / 100
         y_thickness = self.y_thickness_spinbox.value() / 100
+        x_factor = self.x_factor_spinbox.value()
+        y_factor = self.y_factor_spinbox.value()
 
         return {'periodic': periodic, 'pml': is_pml,
                 'x order': x_order, 'x thickness': x_thickness,
-                'y order': y_order, 'y thickness': y_thickness}
+                'y order': y_order, 'y thickness': y_thickness,
+                'x factor': x_factor, 'y factor': y_factor}

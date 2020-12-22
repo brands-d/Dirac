@@ -4,7 +4,7 @@ import time
 import pyqtgraph.exporters as ex
 
 from PyQt5 import uic
-from PyQt5.QtCore import pyqtSignal, QRectF
+from PyQt5.QtCore import pyqtSignal, QRectF, Qt
 from PyQt5.QtWidgets import QApplication, QVBoxLayout, QWidget
 
 from .export.exportbox import Export
@@ -47,18 +47,27 @@ class Player(QWidget, UI):
         return proc_results
 
     def next(self):
-        if self.current_idx < len(self.result) - 1:
-            self.current_idx += 1
+        modifiers = QApplication.keyboardModifiers()
+        if modifiers == Qt.ControlModifier:
+            step_size = 10
         else:
-            self.current_idx = 0
+            step_size = 1
+
+        self.current_idx = (self.current_idx + step_size) % len(self.result)
 
         self.set_image(self.current_idx)
 
     def previous(self):
-        if self.current_idx > 0:
-            self.current_idx -= 1
+        modifiers = QApplication.keyboardModifiers()
+        if modifiers == Qt.ControlModifier:
+            step_size = 10
         else:
-            self.current_idx = len(self.result) - 1
+            step_size = 1
+
+        self.current_idx = self.current_idx - step_size
+
+        if self.current_idx < 0:
+            self.current_idx = len(self.result) + self.current_idx
 
         self.set_image(self.current_idx)
 
