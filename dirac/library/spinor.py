@@ -14,7 +14,7 @@ class SpinorComponent(BaseGrid, metaclass=ABCMeta):
         BaseGrid.__init__(self, shape, range, periodic)
 
     @classmethod
-    def init_on_full_grid(cls, data, range, periodic=False):
+    def init_on_full_grid(cls, data, range=((-1, 1), (-1, 1)), periodic=False):
         shape = data.shape
         idx = cls.stag_to_reg(np.arange(int(data.size / 2)), shape[1])
         data = data.flatten()[idx]

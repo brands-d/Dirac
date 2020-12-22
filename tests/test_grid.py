@@ -19,8 +19,8 @@ class TestIndexConversion(unittest.TestCase):
 
     def setUp(self):
         N, M = 6, 4
-        self.u = UGrid(N, M)
-        self.v = VGrid(N, M)
+        self.u = UGrid((M, N))
+        self.v = VGrid((M, N))
 
     def test_reg_to_stag_u(self):
         stag_idx = self.u.reg_to_stag(TestIndexConversion.u_idx)
@@ -47,7 +47,7 @@ class TestBoundaries(unittest.TestCase):
 
     def setUp(self):
         N, M = 6, 4
-        self.u = UGrid(N, M)
+        self.u = UGrid((M, N))
 
     def test_is_top(self):
         self.assertEqual(self.u.is_top(0), True)
@@ -76,63 +76,63 @@ class TestNeighbours(unittest.TestCase):
         self.N, self.M = 6, 4
 
     def test_top(self):
-        self.u = UGrid(self.N, self.M, periodic=False)
+        self.u = UGrid((self.M, self.N), periodic=False)
 
         assert_equal(self.u.get_top_neighbour(3), np.nan)
         self.assertEqual(self.u.get_top_neighbour(14), 8)
         self.assertEqual(self.u.get_top_neighbour(23), 17)
 
     def test_top_periodic(self):
-        self.u = UGrid(self.N, self.M, periodic=True)
+        self.u = UGrid((self.M, self.N), periodic=True)
 
         self.assertEqual(self.u.get_top_neighbour(3), 21)
         self.assertEqual(self.u.get_top_neighbour(14), 8)
         self.assertEqual(self.u.get_top_neighbour(23), 17)
 
     def test_bottom(self):
-        self.u = UGrid(self.N, self.M, periodic=False)
+        self.u = UGrid((self.M, self.N), periodic=False)
 
         self.assertEqual(self.u.get_bottom_neighbour(3), 9)
         self.assertEqual(self.u.get_bottom_neighbour(14), 20)
         assert_equal(self.u.get_bottom_neighbour(23), np.nan)
 
     def test_bottom_periodic(self):
-        self.u = UGrid(self.N, self.M, periodic=True)
+        self.u = UGrid((self.M, self.N), periodic=True)
 
         self.assertEqual(self.u.get_bottom_neighbour(3), 9)
         self.assertEqual(self.u.get_bottom_neighbour(14), 20)
         self.assertEqual(self.u.get_bottom_neighbour(23), 5)
 
     def test_left(self):
-        self.u = UGrid(self.N, self.M, periodic=False)
+        self.u = UGrid((self.M, self.N), periodic=False)
 
         assert_equal(self.u.get_left_neighbour(6), np.nan)
         self.assertEqual(self.u.get_left_neighbour(15), 14)
         self.assertEqual(self.u.get_left_neighbour(23), 22)
 
     def test_left_periodic(self):
-        self.u = UGrid(self.N, self.M, periodic=True)
+        self.u = UGrid((self.M, self.N), periodic=True)
 
         self.assertEqual(self.u.get_left_neighbour(6), 11)
         self.assertEqual(self.u.get_left_neighbour(15), 14)
         self.assertEqual(self.u.get_left_neighbour(23), 22)
 
     def test_right(self):
-        self.u = UGrid(self.N, self.M, periodic=False)
+        self.u = UGrid((self.M, self.N), periodic=False)
 
         self.assertEqual(self.u.get_right_neighbour(6), 7)
         self.assertEqual(self.u.get_right_neighbour(15), 16)
         assert_equal(self.u.get_right_neighbour(23), np.nan)
 
     def test_right_periodic(self):
-        self.u = UGrid(self.N, self.M, periodic=True)
+        self.u = UGrid((self.M, self.N), periodic=True)
 
         self.assertEqual(self.u.get_right_neighbour(6), 7)
         self.assertEqual(self.u.get_right_neighbour(15), 16)
         self.assertEqual(self.u.get_right_neighbour(23), 18)
 
     def test_neighbours(self):
-        self.u = UGrid(self.N, self.M)
+        self.u = UGrid((self.M, self.N))
 
         expect = np.loadtxt(Path(__file__).parent /
                             'output/neighbours_3_12_21.txt')

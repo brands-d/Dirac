@@ -19,10 +19,9 @@ run:
 test-all:
 	python -m unittest discover
 
-# Requires additional installs
-generate-uml:
-	pyreverse -o png -p kMap ./kmap
-	
+dist:
+	python setup.py sdist bdist_wheel
+
 help:
 	echo 'Usage:'   
 	echo '    make <command> [options]'
