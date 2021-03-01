@@ -34,11 +34,11 @@ class BaseGrid(metaclass=ABCMeta):
 
     @classmethod
     def get_full_meshgrid(cls, range, shape):
-        M, N = shape
+        N, M = shape
         x = cls.get_x_axis(range, N)
         y = cls.get_y_axis(range, M)
 
-        return np.meshgrid(y, x)
+        return np.meshgrid(x, y)
 
     def is_top(self, idx):
         return idx < self.N

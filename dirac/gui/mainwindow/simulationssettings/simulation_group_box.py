@@ -22,12 +22,13 @@ class SimulationSettings(QWidget, UI):
     def get_settings(self):
         time_steps = self.time_steps_spinbox.value()
         dt = self.dt_spinbox.value()
+        c = self.c_spinbox.value()
         is_save = self.save_checkbox.isChecked()
         temp = self.save_lineedit.text()
         file_name = temp if temp else strftime('%Y_%m_%d_%H_%M', localtime())
 
         return {'time steps': time_steps, 'dt': dt, 'is save': is_save,
-                'file name': file_name}
+                'file name': file_name, 'c': c}
 
     def lock_run(self, state):
         self.run_button.clicked.disconnect()

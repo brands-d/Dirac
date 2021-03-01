@@ -54,8 +54,7 @@ class ImagePlot(ImageView):
         scale = ((range[0][1] - range[0][0]) / s.shape[1],
                  (range[1][1] - range[1][0]) / s.shape[0])
         self.setImage(s.T, autoLevels=False, autoRange=True,
-                      pos=(range[1][0], range[0][0]),
-                      scale=scale)
+                      pos=(range[1][0], range[0][0]))
 
     def setup(self, range):
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)

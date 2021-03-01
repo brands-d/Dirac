@@ -18,7 +18,7 @@ class TestDiracSolver(unittest.TestCase):
         self.solver = DiracSolver(self.s0, m, V, 10)
 
     def test_factors(self):
-        k_u = self.solver.k_u[0]
+        k_u = self.solver.f_u[0]
         assert_equal(len(k_u), len(self.s0.u.data))
 
     def test_advance_u(self):

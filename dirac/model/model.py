@@ -28,11 +28,12 @@ class DiracModel:
     def run(self, callback=None):
         dt = self.settings['dt']
         time_steps = self.settings['time steps']
+        c = self.settings['c']
         m, V = self.construct_m(), self.construct_V()
         s0 = self.construct_initial_spinor()
         pml = self.construct_pml()
 
-        solver = DiracSolver(s0, m, V, time_steps, pml=pml, dt=dt)
+        solver = DiracSolver(s0, m, V, time_steps, pml=pml, dt=dt, c=c)
         result = solver.solve(callback=callback)
         self.save_results(result)
 
@@ -49,10 +50,10 @@ class DiracModel:
 
             def sigma_x(x):
                 values = np.zeros(x.shape, dtype=np.complex_)
-                values[x > r_border] = factor * (
-                            x[x > r_border] - r_border)**order
+                values[x >= r_border] = factor * (
+                        x[x >= r_border] - r_border)**order
                 values[x < l_border] = factor * (
-                            x[x < l_border] - l_border)**order
+                        x[x < l_border] - l_border)**order
                 return values
 
             t_border = (1 - self.settings['y thickness']) * \
@@ -64,8 +65,8 @@ class DiracModel:
 
             def sigma_y(y):
                 values = np.zeros(y.shape, dtype=np.complex_)
-                values[y > t_border] = factor * (
-                        y[y > t_border] - t_border)**order
+                values[y >= t_border] = factor * (
+                        y[y >= t_border] - t_border)**order
                 values[y < b_border] = factor * (
                         y[y < b_border] - b_border)**order
 
@@ -82,7 +83,7 @@ class DiracModel:
         if m_step is not None:
             def m_func(x):
                 values = np.zeros(x.shape)
-                values[x > m_step] = m
+                values[x >= m_step] = m
                 return values
 
         else:
@@ -98,7 +99,7 @@ class DiracModel:
         if V_step is not None:
             def V_func(x):
                 values = np.zeros(x.shape)
-                values[x > V_step] = V
+                values[x >= V_step] = V
                 return values
 
         else:
@@ -109,22 +110,30 @@ class DiracModel:
         return V_func
 
     def construct_initial_spinor(self):
-        m = self.settings['m']
+        c = self.settings['c']
+        m = self.settings['m'] / c
         k_x, k_y = self.settings['k']
+        omega = cmath.sqrt(m**2 + k_x**2 + k_y**2)
         shape = self.settings['shape']
         range = self.settings['range']
         periodic = self.settings['periodic']
         mu_x, mu_y = self.settings['position']
         sigma_x, sigma_y = self.settings['sigma']
 
+        # Space (2D Gaussian)
         x, y = Spinor.get_meshgrid(range, shape)
         gauss = np.exp(-((x - mu_x)**2 / (2 * sigma_x**2) +
                          (y - mu_y)**2 / (2 * sigma_y**2)))
+        space = gauss * np.exp(1j * (k_x * x + k_y * y))
 
-        v = (cmath.sqrt(k_x**2 + k_y**2 + m**2) - m) / (k_y + 1j * k_x) \
-            if (k_y + 1j * k_x) != 0 else 0
+        # Momentum (Plane Wave with u0 = 1)
+        if k_x == 0 and k_y == 0 and m == 0:
+            v = 0
 
-        return Spinor(gauss, v * gauss, range, periodic=periodic)
+        else:
+            v = (k_y - 1j * k_x) / (omega + m)
+
+        return Spinor(space, v * space, range, periodic=periodic)
 
     def save_results(self, result):
         if self.settings['is save']:

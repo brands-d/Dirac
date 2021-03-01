@@ -62,7 +62,7 @@ class GridSettings(QWidget, UI):
         y_min = self.y_min_spinbox.value()
         y_max = self.y_max_spinbox.value()
 
-        return {'shape': (M, N), 'range': ((x_min, x_max), (y_min, y_max))}
+        return {'shape': (N, M), 'range': ((x_min, x_max), (y_min, y_max))}
 
     def connect(self):
         self.N_spinbox.valueChanged.connect(self.change_N)

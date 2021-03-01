@@ -8,17 +8,17 @@ from dirac.library.spinor import *
 
 class DiracSolver:
 
-    def __init__(self, s0, m, V, num, pml, dt=1):
+    def __init__(self, s0, m, V, num, pml, dt=1, c=1):
         self.spinor = s0
-        self.dt = self.calc_t_cfl() * dt
+        self.do = self.calc_dt_cfl(c) * dt * c
         self.n_u, self.n_v = s0.get_neighbours()
-        self.r_x, self.r_y = self.dt / s0.dx, self.dt / s0.dy
+        self.r_x, self.r_y = self.do / s0.dx, self.do / s0.dy
 
-        self.times = np.arange(0, num) * self.dt
-        self.k_u, self.k_v = self.calc_pre_factors(m, V, pml)
+        self.times = np.arange(0, num) * self.do
+        self.f_u, self.f_v = self.calc_pre_factors(m, V, pml, c)
 
-    def calc_t_cfl(self):
-        return (1 / self.spinor.dx + 1 / self.spinor.dy)**(-1)
+    def calc_dt_cfl(self, c):
+        return 1 / (c / self.spinor.dx + c / self.spinor.dy)
 
     def solve(self, callback=None):
         results = []
@@ -36,34 +36,42 @@ class DiracSolver:
         return results
 
     def advance_u(self):
-        self.spinor.u *= self.k_u[0]
+        self.spinor.u *= self.f_u[0]
         self.spinor.u -= 1j * self.r_x * (self.spinor.v[self.n_u[2]]
                                           - self.spinor.v[self.n_u[3]])
         self.spinor.u -= self.r_y * (self.spinor.v[self.n_u[0]]
                                      - self.spinor.v[self.n_u[1]])
-        self.spinor.u *= self.k_u[1]
+        self.spinor.u *= self.f_u[1]
 
     def advance_v(self):
-        self.spinor.v *= self.k_v[0]
+        self.spinor.v *= self.f_v[0]
         self.spinor.v += 1j * self.r_x * (self.spinor.u[self.n_v[2]]
                                           - self.spinor.u[self.n_v[3]])
         self.spinor.v -= self.r_y * (self.spinor.u[self.n_v[0]]
                                      - self.spinor.u[self.n_v[1]])
-        self.spinor.v *= self.k_v[1]
+        self.spinor.v *= self.f_v[1]
 
-    def calc_pre_factors(self, m, V, pml):
-        ihc = 1j
+    def advance_half_v(self, direction=1):
+        self.spinor.v *= self.f_v2[0]
+        self.spinor.v += 1j * self.r_x * (self.spinor.u[self.n_v[2]]
+                                          - self.spinor.u[self.n_v[3]]) / 2
+        self.spinor.v -= self.r_y * (self.spinor.u[self.n_v[0]]
+                                     - self.spinor.u[self.n_v[1]]) / 2
+        self.spinor.v *= self.f_v2[1]
+
+    def calc_pre_factors(self, m, V, pml, c=1):
+        ihc = 1j * c
         x_u, y_u = self.spinor.u.get_space_points()
         x_v, y_v = self.spinor.v.get_space_points()
 
-        temp_u = (m(x_u) + V(x_u)) / ihc
-        temp_v = (V(x_v) - m(x_v)) / ihc
+        V_plus = (m(x_u) + V(x_u)) / ihc
+        V_minus = (V(x_v) - m(x_v)) / ihc
 
         if pml is not None:
-            temp_u -= (pml[0](x_u) + pml[1](y_u))
-            temp_v -= (pml[0](x_v) + pml[1](y_v))
+            V_plus -= (pml[0](x_u) + pml[1](y_u))
+            V_minus -= (pml[0](x_v) + pml[1](y_v))
 
-        k_u = [1 + temp_u * self.dt / 2, (1 - temp_u * self.dt / 2)**(-1)]
-        k_v = [1 + temp_v * self.dt / 2, (1 - temp_v * self.dt / 2)**(-1)]
+        f_u = [1 + V_plus * self.do / 2, (1 - V_plus * self.do / 2)**(-1)]
+        f_v = [1 + V_minus * self.do / 2, (1 - V_minus * self.do / 2)**(-1)]
 
-        return k_u, k_v
+        return f_u, f_v
