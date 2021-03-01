@@ -7,6 +7,7 @@ import numpy as np
 
 from dirac import __directory__
 from dirac.library.spinor import Spinor
+from dirac.library.misc import *
 from .dirac_solver import DiracSolver
 
 
@@ -26,12 +27,13 @@ class DiracModel:
             raise IOError
 
     def run(self, callback=None):
-        dt = self.settings['dt']
-        time_steps = self.settings['time steps']
-        c = self.settings['c']
-        m, V = self.construct_m(), self.construct_V()
+        dt = self.settings['simulation']['dt']
+        c = self.settings['simulation']['c']
+        time_steps = self.settings['simulation']['time steps']
+        m = self.construct_m()
+        V = self.construct_V()
         s0 = self.construct_initial_spinor()
-        pml = self.construct_pml()
+        pml = None
 
         solver = DiracSolver(s0, m, V, time_steps, pml=pml, dt=dt, c=c)
         result = solver.solve(callback=callback)
@@ -78,8 +80,9 @@ class DiracModel:
             return None
 
     def construct_m(self):
-        m = self.settings['m']
-        m_step = self.settings['m_step']
+        m = self.settings['simulation']['m']
+        # m_step = self.settings['m_step']
+        m_step = None
         if m_step is not None:
             def m_func(x):
                 values = np.zeros(x.shape)
@@ -94,8 +97,9 @@ class DiracModel:
         return m_func
 
     def construct_V(self):
-        V = self.settings['V']
-        V_step = self.settings['V_step']
+        V = self.settings['simulation']['V']
+        # V_step = self.settings['V_step']
+        V_step = None
         if V_step is not None:
             def V_func(x):
                 values = np.zeros(x.shape)
@@ -110,18 +114,16 @@ class DiracModel:
         return V_func
 
     def construct_initial_spinor(self):
-        c = self.settings['c']
-        m = self.settings['m'] / c
-        k_x, k_y = self.settings['k']
+        c = self.settings['simulation']['c']
+        m = self.settings['simulation']['m'] / c
+        k_x, k_y = self.settings['initial']['k']
         omega = cmath.sqrt(m**2 + k_x**2 + k_y**2)
-        shape = self.settings['shape']
-        range = self.settings['range']
-        periodic = self.settings['periodic']
-        mu_x, mu_y = self.settings['position']
-        sigma_x, sigma_y = self.settings['sigma']
+        num = self.settings['grid']['num']
+        mu_x, mu_y = self.settings['initial']['position']
+        sigma_x, sigma_y = self.settings['initial']['sigma']
 
         # Space (2D Gaussian)
-        x, y = Spinor.get_meshgrid(range, shape)
+        x, y = get_mesh(num)
         gauss = np.exp(-((x - mu_x)**2 / (2 * sigma_x**2) +
                          (y - mu_y)**2 / (2 * sigma_y**2)))
         space = gauss * np.exp(1j * (k_x * x + k_y * y))
@@ -133,14 +135,14 @@ class DiracModel:
         else:
             v = (k_y - 1j * k_x) / (omega + m)
 
-        return Spinor(space, v * space, range, periodic=periodic)
+        return Spinor(space, v * space)
 
     def save_results(self, result):
-        if self.settings['is save']:
+        if self.settings['simulation']['is save']:
             path = __directory__ / '../output'
             if not os.path.exists(path):
                 os.makedirs(path)
 
-            path = path / self.settings['file name']
+            path = path / self.settings['simulation']['file name']
             with GzipFile(path, 'wb') as file:
                 pickle.dump(result, file)

@@ -1,12 +1,9 @@
 import os
+from time import localtime, strftime
 
 from PyQt5 import uic
 from PyQt5.QtWidgets import QMainWindow, QApplication
 
-from .gridsettings.grid_group_box import GridSettings
-from .boundarysettings.boundary_group_box import BoundarySettings
-from .simulationssettings.simulation_group_box import SimulationSettings
-from .initialsettings.initial_group_box import InitialSettings
 from ..player.player import Player
 from dirac.model.model import DiracModel
 
@@ -21,18 +18,14 @@ class MainWindow(QMainWindow, UI):
 
         self.stop = False
         self.player_windows = []
-        self.setup()
         self.connect()
 
     def trigger_simulation(self):
-        self.simulation_settings.lock_run(True)
-
         settings = self.get_settings()
         model = DiracModel(settings)
         result = model.run(callback=self.inter_loop_update)
 
         self.stop = False
-        self.simulation_settings.lock_run(False)
 
         self.open_new_player(result)
 
@@ -74,8 +67,9 @@ class MainWindow(QMainWindow, UI):
 
         QApplication.processEvents()
 
-    def load(self, paths):
-        for path in paths:
+    def load(self):
+        path = self.save_lineedit.text()
+        if path:
             try:
                 result = DiracModel.init_from_path(path)
                 self.open_new_player(result)
@@ -87,14 +81,40 @@ class MainWindow(QMainWindow, UI):
         self.stop = True
 
     def get_settings(self):
-        settings = {}
-        widgets = [self.grid_settings, self.boundary_settings,
-                   self.simulation_settings, self.initial_settings]
+        active = self.active_checkbox.isChecked()
+        factor = self.factor_spinbox.value()
+        order = self.order_spinbox.value()
+        thickness = self.thickness_spinbox.value() / 100
+        imagPot = {'active': active, 'order': order,
+                   'factor': factor, 'thickness': thickness}
 
-        for widget in widgets:
-            settings.update(widget.get_settings())
+        num = self.grid_spinbox.value()
+        grid = {'num': num}
 
-        return settings
+        position = [self.position_x_spinbox.value(),
+                    self.position_y_spinbox.value()]
+        k = [self.k_x_spinbox.value(), self.k_y_spinbox.value()]
+        sigma = [self.sigma_x_spinbox.value(), self.sigma_y_spinbox.value()]
+        initial = {'position': position, 'sigma': sigma, 'k': k}
+
+        time_steps = self.time_steps_spinbox.value()
+        dt = self.dt_spinbox.value()
+        c = self.c_spinbox.value()
+        is_save = self.save_checkbox.isChecked()
+        temp = self.save_lineedit.text()
+        file_name = temp if temp else strftime('%Y_%m_%d_%H_%M', localtime())
+        m = self.m_spinbox.value()
+        V = self.V_spinbox.value()
+        m_step = self.m_step_spinbox.value() if \
+            self.m_step_checkbox.isChecked() else None
+        V_step = self.V_step_spinbox.value() if \
+            self.V_step_checkbox.isChecked() else None
+        simulation = {'time steps': time_steps, 'dt': dt, 'is save': is_save,
+                      'file name': file_name, 'c': c, 'm': m, 'V': V,
+                      'm_step': m_step, 'V_step': V_step}
+
+        return {'imag. potential': imagPot, 'grid': grid, 'initial': initial,
+                'simulation': simulation}
 
     def closeEvent(self, event):
         for player in self.player_windows:
@@ -103,20 +123,6 @@ class MainWindow(QMainWindow, UI):
 
         event.accept()
 
-    def setup(self):
-        self.grid_settings = GridSettings()
-        self.boundary_settings = BoundarySettings()
-        self.simulation_settings = SimulationSettings()
-        self.initial_settings = InitialSettings()
-
-        self.layout.addWidget(self.grid_settings)
-        self.layout_2.insertWidget(0, self.boundary_settings)
-        self.layout.addWidget(self.initial_settings)
-        self.layout_2.insertWidget(1, self.simulation_settings)
-
     def connect(self):
-        self.simulation_settings.simulation_triggered.connect(
-            self.trigger_simulation)
-        self.simulation_settings.simulation_stop_triggered.connect(
-            self.stop_simulation)
-        self.simulation_settings.load_triggered.connect(self.load)
+        self.run_button.clicked.connect(self.trigger_simulation)
+        self.load_button.clicked.connect(self.load)

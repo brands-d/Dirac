@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import QSizePolicy, QWidget
 
 class SurfacePlot(GLViewWidget):
 
-    def __init__(self, layout, x, y, *args, **kwargs):
+    def __init__(self, layout, *args, **kwargs):
         self.plot_view = PlotItem()
 
         super(SurfacePlot, self).__init__(*args, **kwargs)
@@ -17,7 +17,7 @@ class SurfacePlot(GLViewWidget):
 
         self.image = None
 
-        self.setup(x, y)
+        self.setup()
         self.show()
 
     def plot(self, s, *args):
@@ -26,9 +26,9 @@ class SurfacePlot(GLViewWidget):
     def get_plot_item(self):
         return self.image
 
-    def setup(self, x, y):
+    def setup(self):
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.image = GLSurfacePlotItem(x=y, y=x, smooth=True,
+        self.image = GLSurfacePlotItem(smooth=True,
                                        computeNormals=False, drawEdges=False,
                                        shader='heightColor', drawFaces=True)
         self.addItem(self.image)
@@ -36,30 +36,29 @@ class SurfacePlot(GLViewWidget):
 
 class ImagePlot(ImageView):
 
-    def __init__(self, layout, range, *args, **kwargs):
+    def __init__(self, layout, *args, **kwargs):
         self.plot_view = PlotItem(lockAspect=1)
 
         super(ImagePlot, self).__init__(*args, view=self.plot_view, **kwargs)
 
         layout.insertWidget(0, self)
 
-        self.setup(range)
+        self.setup()
         self.show()
 
     def get_plot_item(self):
         return self.plot_view
 
-    def plot(self, s, range):
+    def plot(self, s):
         self.clear()
-        scale = ((range[0][1] - range[0][0]) / s.shape[1],
-                 (range[1][1] - range[1][0]) / s.shape[0])
+        scale = (2 / s.shape[1], 2 / s.shape[0])
         self.setImage(s.T, autoLevels=False, autoRange=True,
-                      pos=(range[1][0], range[0][0]))
+                      pos=(-1, -1), scale=scale)
+        self.view.setRange(xRange=(-1, 1), yRange=(-1, 1))
 
-    def setup(self, range):
+    def setup(self):
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.view.setRange(xRange=range[0], yRange=range[1])
-
+        self.view.setRange(xRange=(-1, 1), yRange=(-1, 1))
         self.view.invertY(True)
         self.view.hideButtons()
         self.ui.roiBtn.hide()

@@ -1,18 +1,13 @@
 import os
 import time
 
-import pyqtgraph.exporters as ex
-
 from PyQt5 import uic
 from PyQt5.QtCore import pyqtSignal, QRectF, Qt
 from PyQt5.QtWidgets import QApplication, QVBoxLayout, QWidget
+import pyqtgraph.exporters as ex
 
-from .export.exportbox import Export
-from .information.informationbox import Information
-from .playercontrol.playercontrol import PlayerControl
-from .plot.plot import *
-from .viewsettings.viewsettings import ViewSettings
 from dirac import __directory__
+from dirac.gui.player.plot import *
 
 UI, _ = uic.loadUiType(os.path.splitext(__file__)[0] + '.ui')
 
@@ -24,11 +19,8 @@ class Player(QWidget, UI):
         super(QWidget, self).__init__()
         self.setupUi(self)
 
-        self.range = result[0][1].range
-        self.shape = result[0][1].shape
-        self.delta = (result[0][1].dx, result[0][1].dx)
-        self.x = result[0][1].u.get_x_axis(self.range, self.shape[1])
-        self.y = result[0][1].u.get_y_axis(self.range, self.shape[0])
+        self.num = result[0][1].num
+        self.ds = result[0][1].ds
         self.result = self.process_results(result, callback)
         self.current_idx = 0
         self.exporter = None
@@ -45,6 +37,9 @@ class Player(QWidget, UI):
             proc_results.append([result[0], abs(result[1])])
 
         return proc_results
+
+    def get_fps(self):
+        return self.fps_spinbox.value()
 
     def next(self):
         modifiers = QApplication.keyboardModifiers()
@@ -71,10 +66,19 @@ class Player(QWidget, UI):
 
         self.set_image(self.current_idx)
 
+    def run(self):
+        if self.start_button.text() == 'Start':
+            self.start()
+
+        else:
+            self.stop()
+
     def stop(self):
+        self.start_button.setText('Start')
         self.is_play = False
 
     def start(self):
+        self.start_button.setText('Stop')
         self.is_play = True
 
         while self.is_play:
@@ -84,21 +88,20 @@ class Player(QWidget, UI):
             QApplication.processEvents()
 
             duration = time.time() - start_time
-            fps = self.player_control.get_fps()
+            fps = self.get_fps()
             sleep = 1 / fps - duration
             if sleep >= 0:
                 time.sleep(sleep)
 
     def toggle_plot_type(self):
-        layout = self.widget.layout()
-        layout.removeWidget(self.plot)
+        self.plot_layout.removeWidget(self.plot)
         self.plot.deleteLater()
 
         if isinstance(self.plot, SurfacePlot):
-            self.plot = ImagePlot(layout, self.range)
+            self.plot = ImagePlot(self.plot_layout)
             self.set_exporter()
         else:
-            self.plot = SurfacePlot(layout, self.x, self.y)
+            self.plot = SurfacePlot(self.plot_layout)
 
         self.set_image(self.current_idx)
 
@@ -107,10 +110,18 @@ class Player(QWidget, UI):
 
     def set_image(self, idx):
         time, spinor = self.result[idx]
-        self.plot.plot(spinor, self.range)
+        self.plot.plot(spinor)
 
-        self.information.set_current_idx(idx, len(self.result))
-        self.information.set_current_time(time)
+        self.set_current_idx(idx, len(self.result))
+        self.set_current_time(time)
+
+    def set_current_idx(self, idx, max_):
+        text = '{0:.0f} / {1:.0f}'.format(idx, max_)
+        self.idx_label.setText(text)
+
+    def set_current_time(self, time):
+        text = '{0:.3f} a.u.'.format(time)
+        self.time_label.setText(text)
 
     def export_movie(self):
         self.set_image(0)
@@ -149,26 +160,14 @@ class Player(QWidget, UI):
         event.accept()
 
     def setup(self):
-        self.plot = ImagePlot(self.widget.layout(), self.range)
-        self.player_control = PlayerControl()
-        self.information = Information()
-        self.export = Export()
-        self.view = ViewSettings()
-
-        layout = QVBoxLayout()
-        self.widget.layout().addLayout(layout)
-        layout.addWidget(self.player_control)
-        layout.addWidget(self.information)
-        layout.addWidget(self.view)
-        layout.addWidget(self.export)
-
+        self.plot = ImagePlot(self.plot_layout)
         self.set_exporter()
 
     def connect(self):
-        self.player_control.next_triggered.connect(self.next)
-        self.player_control.previous_triggered.connect(self.previous)
-        self.player_control.start_triggered.connect(self.start)
-        self.player_control.stop_triggered.connect(self.stop)
-        self.view.plot_toggled.connect(self.toggle_plot_type)
-        self.export.save_image_triggered.connect(self.export_image)
-        self.export.save_movie_triggered.connect(self.export_movie)
+        self.surface_radiobutton.clicked.connect(self.toggle_plot_type)
+        self.image_radiobutton.clicked.connect(self.toggle_plot_type)
+        self.save_image.clicked.connect(self.export_image)
+        self.save_movie.clicked.connect(self.export_movie)
+        self.start_button.clicked.connect(self.run)
+        self.next_button.clicked.connect(self.next)
+        self.previous_button.clicked.connect(self.previous)
