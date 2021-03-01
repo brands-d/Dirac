@@ -36,14 +36,20 @@ class DiracSolver:
         return results
 
     def advance_v(self):
-        pass
+        u, v = self.spinor.u, self.spinor.v
+        aux = self.r * (u.roll(1, -1) - u.roll(1, 1))
+        aux_2 = self.r * (u.roll(0, -1) - u.roll(0, 1))
+        self.spinor.v = (v * self.f_v[0] - aux + 1j * aux_2) * self.f_v[1]
 
     def advance_u(self):
-        pass
+        u, v = self.spinor.u, self.spinor.v
+        aux = self.r * (v.roll(1, -1) - v.roll(1, 1))
+        aux_2 = self.r * (v.roll(0, -1) - v.roll(0, 1))
+        self.spinor.u = (u * self.f_u[0] - aux - 1j * aux_2) * self.f_u[1]
 
     def calc_pre_factors(self, m, V, pml):
         ihc = 1j * self.c
-        x, y = get_mesh(self.spinor.num)
+        x, y = get_mesh(self.spinor.N)
 
         V_plus = (m(x) + V(x)) / ihc
         V_minus = (V(x) - m(x)) / ihc
@@ -53,6 +59,7 @@ class DiracSolver:
             V_minus -= (pml[0](x) + pml[1](y))
 
         f_u = [1 + V_plus * self.do / 2, (1 - V_plus * self.do / 2)**(-1)]
-        f_v = [1 + V_minus * self.do / 2, (1 - V_minus * self.do / 2)**(-1)]
+        f_v = [1 + V_minus * self.do / 2,
+               (1 - V_minus * self.do / 2)**(-1)]
 
         return f_u, f_v

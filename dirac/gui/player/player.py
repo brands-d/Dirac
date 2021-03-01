@@ -19,7 +19,6 @@ class Player(QWidget, UI):
         super(QWidget, self).__init__()
         self.setupUi(self)
 
-        self.num = result[0][1].num
         self.ds = result[0][1].ds
         self.result = self.process_results(result, callback)
         self.current_idx = 0

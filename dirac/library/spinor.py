@@ -14,8 +14,8 @@ class Spinor():
         return self.u.ds
 
     @property
-    def num(self):
-        return self.u.num
+    def N(self):
+        return self.u.N
 
     def __add__(self, other):
         if type(other) == Spinor:

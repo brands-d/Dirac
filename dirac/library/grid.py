@@ -11,7 +11,7 @@ class Grid():
 
 
     def roll(self, axis, shift):
-        return np.roll(self.data, shift, axis=axis)
+        return Grid(np.roll(self.data, shift, axis=axis))
 
     def abs_square(self):
         return self.data * np.conjugate(self.data)
