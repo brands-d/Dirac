@@ -9,13 +9,13 @@ from dirac.library.misc import *
 
 class DiracSolver:
 
-    def __init__(self, s0, m, V, num, pml, dt=1, c=1):
+    def __init__(self, s0, m, V, num, abc, dt=1, c=1):
         self.spinor = s0
         self.c = c
         self.do = self.calc_dt_cfl() * dt * self.c
         self.r = self.do / self.spinor.ds
         self.times = np.arange(0, num) * self.do
-        self.f_u, self.f_v = self.calc_pre_factors(m, V, pml)
+        self.f_u, self.f_v = self.calc_pre_factors(m, V, abc)
 
     def calc_dt_cfl(self):
         return self.spinor.ds / (2 * self.c)
@@ -47,16 +47,17 @@ class DiracSolver:
         aux_2 = self.r * (v.roll(0, -1) - v.roll(0, 1))
         self.spinor.u = (u * self.f_u[0] - aux - 1j * aux_2) * self.f_u[1]
 
-    def calc_pre_factors(self, m, V, pml):
+    def calc_pre_factors(self, m, V, abc):
         ihc = 1j * self.c
         x, y = get_mesh(self.spinor.N)
 
         V_plus = (m(x) + V(x)) / ihc
         V_minus = (V(x) - m(x)) / ihc
 
-        if pml is not None:
-            V_plus -= (pml[0](x) + pml[1](y))
-            V_minus -= (pml[0](x) + pml[1](y))
+        if abc is not None:
+            aux = (abc(x) + abc(y))
+            V_plus -= (abc(x) + abc(y))
+            V_minus -= (abc(x) + abc(y))
 
         f_u = [1 + V_plus * self.do / 2, (1 - V_plus * self.do / 2)**(-1)]
         f_v = [1 + V_minus * self.do / 2,

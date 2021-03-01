@@ -1,5 +1,5 @@
 # Dirac
-A small program to numerically simulate a plane wave solution to the (2+1)D Dirac equation on a doubly staggered (in space and time) grid with optional absorbive boundary layers (PML).
+A small program to numerically simulate a plane wave solution to the (2+1)D Dirac equation on a doubly staggered (in space and time) grid with optional absorbive boundary layers (imaginary potential method).
 
 ## Contact
 - Author: Dominik Brandstetter, BSc.

@@ -33,24 +33,22 @@ class DiracModel:
         m = self.construct_m()
         V = self.construct_V()
         s0 = self.construct_initial_spinor()
-        pml = None
+        abc = self.construct_abc()
 
-        solver = DiracSolver(s0, m, V, time_steps, pml=pml, dt=dt, c=c)
+        solver = DiracSolver(s0, m, V, time_steps, abc=abc, dt=dt, c=c)
         result = solver.solve(callback=callback)
         self.save_results(result)
 
         return result
 
-    def construct_pml(self):
-        if self.settings['pml']:
-            l_border = (1 - self.settings['x thickness']) * \
-                       self.settings['range'][0][0]
-            r_border = (1 - self.settings['x thickness']) * \
-                       self.settings['range'][0][1]
-            order = self.settings['x order']
-            order = self.settings['x factor']
+    def construct_abc(self):
+        if self.settings['abc']['active']:
+            r_border = 1 - self.settings['abc']['thickness']
+            l_border = self.settings['abc']['thickness'] - 1
+            order = self.settings['abc']['order']
+            factor = self.settings['abc']['factor']
 
-            def sigma_x(x):
+            def sigma(x):
                 values = np.zeros(x.shape, dtype=np.complex_)
                 values[x >= r_border] = factor * (
                         x[x >= r_border] - r_border)**order
@@ -58,57 +56,41 @@ class DiracModel:
                         x[x < l_border] - l_border)**order
                 return values
 
-            t_border = (1 - self.settings['y thickness']) * \
-                       self.settings['range'][1][1]
-            b_border = (1 - self.settings['y thickness']) * \
-                       self.settings['range'][1][0]
-            order = self.settings['y order']
-            factor = self.settings['y factor']
-
-            def sigma_y(y):
-                values = np.zeros(y.shape, dtype=np.complex_)
-                values[y >= t_border] = factor * (
-                        y[y >= t_border] - t_border)**order
-                values[y < b_border] = factor * (
-                        y[y < b_border] - b_border)**order
-
-                return values
-
-            return [sigma_x, sigma_y]
+            return sigma
 
         else:
             return None
 
     def construct_m(self):
         m = self.settings['simulation']['m']
-        # m_step = self.settings['m_step']
-        m_step = None
-        if m_step is not None:
+        m_step = self.settings['simulation']['m_step']
+
+        if m_step is True:
             def m_func(x):
-                values = np.zeros(x.shape)
-                values[x >= m_step] = m
+                values = np.zeros((len(x), len(x)))
+                values[x.flatten() >= 0] = m
                 return values
 
         else:
             def m_func(x):
-                values = m * np.ones(x.shape)
+                values = m * np.ones((len(x), len(x)))
                 return values
 
         return m_func
 
     def construct_V(self):
         V = self.settings['simulation']['V']
-        # V_step = self.settings['V_step']
-        V_step = None
-        if V_step is not None:
+        V_step = self.settings['simulation']['V_step']
+
+        if V_step is True:
             def V_func(x):
-                values = np.zeros(x.shape)
-                values[x >= V_step] = V
+                values = np.zeros((len(x), len(x)))
+                values[x.flatten() >= 0, :] = V
                 return values
 
         else:
             def V_func(x):
-                values = V * np.ones(x.shape)
+                values = V * np.ones((len(x), len(x)))
                 return values
 
         return V_func

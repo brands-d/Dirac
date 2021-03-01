@@ -85,7 +85,7 @@ class MainWindow(QMainWindow, UI):
         factor = self.factor_spinbox.value()
         order = self.order_spinbox.value()
         thickness = self.thickness_spinbox.value() / 100
-        imagPot = {'active': active, 'order': order,
+        abc = {'active': active, 'order': order,
                    'factor': factor, 'thickness': thickness}
 
         num = self.grid_spinbox.value()
@@ -105,15 +105,13 @@ class MainWindow(QMainWindow, UI):
         file_name = temp if temp else strftime('%Y_%m_%d_%H_%M', localtime())
         m = self.m_spinbox.value()
         V = self.V_spinbox.value()
-        m_step = self.m_step_spinbox.value() if \
-            self.m_step_checkbox.isChecked() else None
-        V_step = self.V_step_spinbox.value() if \
-            self.V_step_checkbox.isChecked() else None
+        m_step = self.m_step_checkbox.isChecked()
+        V_step = self.V_step_checkbox.isChecked()
         simulation = {'time steps': time_steps, 'dt': dt, 'is save': is_save,
                       'file name': file_name, 'c': c, 'm': m, 'V': V,
                       'm_step': m_step, 'V_step': V_step}
 
-        return {'imag. potential': imagPot, 'grid': grid, 'initial': initial,
+        return {'abc': abc, 'grid': grid, 'initial': initial,
                 'simulation': simulation}
 
     def closeEvent(self, event):
