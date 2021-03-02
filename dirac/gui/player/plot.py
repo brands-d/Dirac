@@ -6,11 +6,14 @@ from pyqtgraph.opengl import (GLViewWidget, GLGridItem,
 
 from PyQt5.QtWidgets import QSizePolicy, QWidget
 
+from dirac.library.misc import *
+
 
 class SurfacePlot(GLViewWidget):
 
-    def __init__(self, layout, *args, **kwargs):
+    def __init__(self, layout, N, *args, **kwargs):
         self.plot_view = PlotItem()
+        self.axis, _ = get_mesh(N)
 
         super(SurfacePlot, self).__init__(*args, **kwargs)
         layout.insertWidget(0, self)
@@ -21,7 +24,7 @@ class SurfacePlot(GLViewWidget):
         self.show()
 
     def plot(self, s, *args):
-        self.image.setData(z=s)
+        self.image.setData(x=self.axis, y=self.axis, z=s)
 
     def get_plot_item(self):
         return self.image

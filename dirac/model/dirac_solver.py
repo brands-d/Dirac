@@ -37,15 +37,15 @@ class DiracSolver:
 
     def advance_v(self):
         u, v = self.spinor.u, self.spinor.v
-        aux = self.r * (u.roll(1, -1) - u.roll(1, 1))
-        aux_2 = self.r * (u.roll(0, -1) - u.roll(0, 1))
-        self.spinor.v = (v * self.f_v[0] - aux + 1j * aux_2) * self.f_v[1]
+        dy = self.r * (u.roll(1, -1) - u.roll(1, 1))
+        dx = self.r * (u.roll(0, -1) - u.roll(0, 1))
+        self.spinor.v = (v * self.f_v[0] - dy + 1j * dx) * self.f_v[1]
 
     def advance_u(self):
         u, v = self.spinor.u, self.spinor.v
-        aux = self.r * (v.roll(1, -1) - v.roll(1, 1))
-        aux_2 = self.r * (v.roll(0, -1) - v.roll(0, 1))
-        self.spinor.u = (u * self.f_u[0] - aux - 1j * aux_2) * self.f_u[1]
+        dy = self.r * (v.roll(1, -1) - v.roll(1, 1))
+        dx = self.r * (v.roll(0, -1) - v.roll(0, 1))
+        self.spinor.u = (u * self.f_u[0] - dy - 1j * dx) * self.f_u[1]
 
     def calc_pre_factors(self, m, V, abc):
         ihc = 1j * self.c
@@ -55,12 +55,10 @@ class DiracSolver:
         V_minus = (V(x) - m(x)) / ihc
 
         if abc is not None:
-            aux = (abc(x) + abc(y))
             V_plus -= (abc(x) + abc(y))
             V_minus -= (abc(x) + abc(y))
 
         f_u = [1 + V_plus * self.do / 2, (1 - V_plus * self.do / 2)**(-1)]
-        f_v = [1 + V_minus * self.do / 2,
-               (1 - V_minus * self.do / 2)**(-1)]
+        f_v = [1 + V_minus * self.do / 2, (1 - V_minus * self.do / 2)**(-1)]
 
         return f_u, f_v

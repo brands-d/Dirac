@@ -100,7 +100,8 @@ class Player(QWidget, UI):
             self.plot = ImagePlot(self.plot_layout)
             self.set_exporter()
         else:
-            self.plot = SurfacePlot(self.plot_layout)
+            self.plot = SurfacePlot(self.plot_layout, self.result[0][
+                1].shape[0])
 
         self.set_image(self.current_idx)
 
